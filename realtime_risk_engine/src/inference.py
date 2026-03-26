@@ -1,50 +1,119 @@
 import os
+from datetime import datetime, timezone
+
 import joblib
 import pandas as pd
-from .config import MODEL_PATH, F2_OPTIMAL_THRESHOLD
+
+from .config import BEHAVIORAL_MODEL_PATH, F2_OPTIMAL_THRESHOLD
 from .feature_engine import RealTimeFeatureEngine
+from .fusion import fuse_scores
+from .historian import UniversalHistorian
 from .transformer import MoneyVisTransformer
 
-class VectorPredictor:
+
+class RiskEngine:
     """
-    Main entry point for scoring a batch of UK transactions through the VECTOR brain.
+    Dual-model real-time risk engine.
+
+    It exposes historian-only, behavioral-only, and fused risk inference paths.
     """
-    
+
     def __init__(self):
         self.transformer = MoneyVisTransformer()
         self.feature_engine = RealTimeFeatureEngine()
-        
-        if not os.path.exists(MODEL_PATH):
-            raise FileNotFoundError(f"VECTOR Model not found at {MODEL_PATH}")
-            
-        # Load the XGBoost artifact
-        artifact = joblib.load(MODEL_PATH)
-        self.model = artifact["model"]
-        self.feature_names = artifact["features"]
+        self.historian = UniversalHistorian()
 
-    def predict_risk(self, raw_tx_df: pd.DataFrame, ref_date: str = None):
-        """
-        Takes raw UK DataFrame, transforms, windows, and scores.
-        """
-        # 1. Standardize
+        if not os.path.exists(BEHAVIORAL_MODEL_PATH):
+            raise FileNotFoundError(
+                f"VECTOR behavioral model not found at {BEHAVIORAL_MODEL_PATH}"
+            )
+
+        artifact = joblib.load(BEHAVIORAL_MODEL_PATH)
+        self.behavioral_model = artifact["model"]
+        self.behavioral_threshold = float(
+            artifact.get("threshold", F2_OPTIMAL_THRESHOLD)
+        )
+        self.behavioral_feature_names = list(artifact["features"])
+        self.behavioral_model_version = os.path.basename(BEHAVIORAL_MODEL_PATH)
+
+    def score_profile(self, profile: dict):
+        """Run the structural baseline model on a raw profile payload."""
+        return self.historian.score_profile(profile)
+
+    def score_behavioral(
+        self,
+        raw_tx_df: pd.DataFrame,
+        ref_date: str = None,
+        account_id: str = "SIM_USER_001",
+    ):
+        """Run the behavioral model on a batch of UK-style transactions."""
         ledger = self.transformer.transform_batch(raw_tx_df)
-        
-        # 2. Get reference date (default to latest tx)
         target_date = pd.Timestamp(ref_date) if ref_date else ledger["date"].max()
-        
-        # 3. Compute Vector signals
         signals = self.feature_engine.compute_signals(ledger, target_date)
-        
+
         if not signals:
-            return {"error": "Insufficient history (180 days needed)", "status": "INCOMPLETE_HISTORY"}
-            
-        # 4. Score through Model
-        X = pd.DataFrame([signals])[self.feature_names].values
-        prob = self.model.predict_proba(X)[0, 1]
-        
+            return {
+                "account_id": account_id,
+                "behavioral_score": None,
+                "behavioral_scored_at": None,
+                "behavioral_model_version": self.behavioral_model_version,
+                "status": "INCOMPLETE_HISTORY",
+                "error": "Insufficient history (180 days needed)",
+            }
+
+        X = pd.DataFrame([signals])[self.behavioral_feature_names]
+        prob = float(self.behavioral_model.predict_proba(X)[0, 1])
+
         return {
-            "account_id": "SIM_USER_001",
-            "probability": round(float(prob), 4),
-            "is_distressed": bool(prob >= F2_OPTIMAL_THRESHOLD),
-            "signals": signals
+            "account_id": account_id,
+            "behavioral_score": round(prob, 4),
+            "behavioral_scored_at": datetime.now(timezone.utc).isoformat(),
+            "behavioral_model_version": self.behavioral_model_version,
+            "is_distressed": bool(prob >= self.behavioral_threshold),
+            "signals": signals,
+            "status": "OK",
         }
+
+    def predict_risk(
+        self,
+        raw_tx_df: pd.DataFrame = None,
+        profile: dict = None,
+        ref_date: str = None,
+        account_id: str = "SIM_USER_001",
+    ):
+        """
+        Unified entry point returning structural, behavioral, and fused scores.
+        """
+        historian_result = None
+        behavioral_result = None
+
+        if profile is not None:
+            historian_result = self.score_profile(profile)
+        if raw_tx_df is not None:
+            behavioral_result = self.score_behavioral(
+                raw_tx_df, ref_date=ref_date, account_id=account_id
+            )
+
+        historian_score = (
+            None if historian_result is None else historian_result["historian_score"]
+        )
+        behavioral_score = None
+        if behavioral_result is not None:
+            behavioral_score = behavioral_result.get("behavioral_score")
+
+        final_score = fuse_scores(historian_score, behavioral_score)
+        status = "OK" if final_score is not None else "INSUFFICIENT_DATA"
+
+        return {
+            "account_id": account_id,
+            "historian": historian_result,
+            "behavioral": behavioral_result,
+            "final_risk_score": None if final_score is None else round(final_score, 4),
+            "status": status,
+        }
+
+
+class VectorPredictor(RiskEngine):
+    """Backward-compatible alias for earlier behavioral-only integrations."""
+
+    pass

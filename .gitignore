@@ -7,7 +7,6 @@ venv/
 **/*.zip
 **/*.db
 **/*.sqlite
-**/*.pkl
 **/*.h5
 **/*.joblib
 **/__pycache__/
