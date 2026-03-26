@@ -1,0 +1,53 @@
+
+    <html>
+    <head>
+        <title>Open Banking / MoneyViz Risk Report</title>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; color: #333; }
+            h1 { color: #2c3e50; text-align: center; }
+            .container { width: 80%; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { padding: 12px; border: 1px solid #ddd; text-align: center; }
+            th { background-color: #34495e; color: white; }
+            .high-risk { color: #e74c3c; font-weight: bold; background-color: #fadbd8; }
+            .low-risk { color: #27ae60; font-weight: bold; background-color: #d5f5e3; }
+            .summary { display: flex; justify-content: space-around; background: #ecf0f1; padding: 15px; border-radius: 6px; margin-bottom: 20px; }
+            .stat-box { text-align: center; font-size: 1.2em; }
+            .stat-val { font-size: 1.5em; font-weight: bold; color: #e67e22; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>💳 Automated Open Banking Underwriting Report</h1>
+            <p>This report scores raw transaction accounts against a Surrogate Machine Learning model trained on classic Lending Club defaults, using strictly Open Banking convertible features.</p>
+            
+            <div class="summary">
+                <div class="stat-box">Total Accounts Scored<br><span class="stat-val">1</span></div>
+                <div class="stat-box">High Risk Identifications<br><span class="stat-val">0</span></div>
+                <div class="stat-box">Low Risk Pipeline<br><span class="stat-val">1</span></div>
+            </div>
+            
+            <table>
+                <tr>
+                    <th>Account ID</th>
+                    <th>Est. Annual Income</th>
+                    <th>Proxy DTI (%)</th>
+                    <th>Delinquency Proxies</th>
+                    <th>Risk Model Probability</th>
+                    <th>Final Decision</th>
+                </tr>
+    
+                <tr>
+                    <td>17899960</td>
+                    <td>$36996.14</td>
+                    <td>44.37%</td>
+                    <td>20</td>
+                    <td><strong>46.9% Default Risk</strong></td>
+                    <td class="low-risk">Low Risk / Approved</td>
+                </tr>
+        
+            </table>
+        </div>
+    </body>
+    </html>
+    

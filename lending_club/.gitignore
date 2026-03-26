@@ -1,0 +1,16 @@
+# Ignore large datasets and generated artifacts
+/data/
+/outputs/
+/models/
+/.ipynb_checkpoints/
+*.csv
+*.pkl
+*.h5
+*.zip
+*.parquet
+*.db
+*.sqlite
+
+# Standard Python compilation ignores
+**/__pycache__/
+**/*.py[cod]

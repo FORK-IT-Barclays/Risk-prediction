@@ -1,0 +1,21 @@
+# Financial Historian Model — Performance Report
+
+Dataset: post-2012 Lending Club sample | Split: 2012-2016 train / 2017 val / 2018 test
+Feature count: 25 | Decision threshold: 0.3
+
+## Validation Set (2017)
+  ROC-AUC   : 0.9755
+  PR-AUC    : 0.8438
+  F1 Score  : 0.4337
+  Precision : 0.2777
+  Recall    : 0.9887
+
+## Test Set (2018)
+  ROC-AUC   : 0.8969
+  PR-AUC    : 0.3719
+  F1 Score  : 0.0842
+  Precision : 0.0440
+  Recall    : 0.9887
+
+  TN=21,865  FP=83,736
+  FN=44  TP=3,851
