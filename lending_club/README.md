@@ -1,6 +1,6 @@
-## 🏦 Project Overview
+# 🏦 Universal Financial Historian
 
-This is a **credit risk / loan default prediction** system built for Barclays, using the Lending Club public dataset (2007–2018). It has two distinct ML tracks:
+This is a **structural credit risk prediction engine** built for Barclays. Initially trained on the massive Lending Club public framework (2007–2018), it acts as a Generalized Structural Underwriter. It achieves this by assessing the foundational financial structure of an applicant rather than monitoring live behavioral transactions.
 
 ---
 
@@ -8,83 +8,52 @@ This is a **credit risk / loan default prediction** system built for Barclays, u
 
 | Path | Purpose |
 |---|---|
-| [accepted_2007_to_2018Q4.csv](accepted_2007_to_2018Q4.csv) | Raw accepted loan data (~1.6 GB) |
-| [rejected_2007_to_2018Q4.csv](rejected_2007_to_2018Q4.csv) | Raw rejected loan data (~1.7 GB) |
-| [data.csv](data.csv) | Raw open-banking ledger (for MoneyViz) |
+| `accepted_2007_to_2018Q4.csv` | Raw accepted loan data (Training input) |
+| `rejected_2007_to_2018Q4.csv` | Raw rejected loan data (Not processed) |
 | `data/processed/` | Cleaned/preprocessed parquet & CSV files |
-| `src/` | All Python source scripts |
-| `models/` | Open Banking surrogate model artifacts |
-| `outputs/models/` | Main Financial Historian model artifacts |
-| `outputs/plots/` | All generated charts (27 PNGs) |
-| `reports/` | Text reports + HTML risk report |
-| `notebooks/` | EDA notebook + helper scripts |
+| `src/` | Core Python inference and training scripts (`train.py`, `features.py`, `clean.py`) |
+| `outputs/models/` | Production serialized `.pkl` models |
+| `outputs/plots/` | Visualizations of threshold sensitivity and ROC-AUC curves |
+| `reports/` | Summaries of model performance |
+| `notebooks/` | Interactive dynamic 19-step EDA generation scripts |
+| `moneyviz_surrogate/` | *[QUARANTINED]* Deprecated behavioral scripts |
 
 ---
 
-## 🧠 Two ML Tracks
+## 🧠 The Architecture (4-Layer Composite)
 
-### Track 1 — "Financial Historian" (Main Model)
-A **4-layer composite risk scoring system** for predicting loan defaults:
-
-```
-Composite Score = 50% XGBoost + 25% Cohort Risk + 15% Rule Layer + 10% Anomaly
+The system avoids relying on a single "black-box" decision tree. To ensure interpretability and robust edge-case handling, it routes the final score through a **4-layer ensemble composite**:
+```text
+Composite Score = 50% XGBoost + 25% Cohort KMeans + 15% Expert Rules + 10% Isolation Forest
 ```
 
-| Layer | Component | Script |
+| Layer | Component | Execution Script |
 |---|---|---|
-| Core | XGBoost classifier | `src/train.py` |
-| Layer 1 | KMeans cohort clustering (20 clusters) | `src/features.py` |
-| Layer 2 | Hard threshold rules (FICO drop, DTI, etc.) | `src/features.py` |
-| Layer 3 | Isolation Forest (anomaly detection) | `src/train.py` |
-
-**Feature split** (from `config.py`):
-- **T=0 features** (20): Known at origination — `loan_amnt`, `int_rate`, `fico_avg`, `dti`, `grade_enc`, etc.
-- **Behavioral features** (5): Mid-loan signals — `fico_drop`, `repay_ratio`, `late_fee_flag`, etc.
-
-**Temporal train/val/test split** — no data leakage:
-- Train: 2012–2016 | Val: 2017 | Test: 2018
-
-**Final model performance** (held-out 2018 test):
-- ROC-AUC: **0.8857** | PR-AUC: **0.3246** | Recall: **99.0%** | FNR: **1.03%**
-- Decision threshold: `0.30` (tuned for high recall / low missed defaults)
-
-### Track 2 — "Open Banking Surrogate" (MoneyViz Pipeline)
-A lighter model that scores raw **bank transaction ledgers** (no credit bureau data):
-
-```
-data.csv (bank ledger) → moneyviz_transformer.py → data_transformed.csv
-                                                  → train_surrogate.py (SMOTE + XGBoost)
-                                                  → score_accounts.py → Risk_Report.html
-```
-
-It extracts 4 proxy features from transactions: `annual_inc`, `dti`, `loan_to_income`, `delinq_2yrs`
+| **Core** | **XGBoost Classifier** (Trained specifically via `scale_pos_weight` rather than SMOTE) | `src/train.py` |
+| **Layer 1** | **KMeans Cohort Clustering** (Identifies historical similarity to Defaulters) | `src/features.py` |
+| **Layer 2** | **Hard Threshold Rules** (Manual DTI & Payment penalty overlays) | `src/features.py` |
+| **Layer 3** | **Isolation Forest** (Identifies statistically impossible data combinations as fraud proxy) | `src/train.py` |
 
 ---
 
-## 🔄 Execution Order (Main Pipeline)
-
-```
-1.  src/clean.py          → clean raw parquet → lending_club_clean.parquet
-2.  src/train.py          → train + evaluate model → outputs/models/*.pkl
-3.  src/train_final.py    → retrain on ALL data → outputs/models/*_FINAL.pkl
-```
-
-**Open Banking path:**
-```
-4.  src/moneyviz_transformer.py  → transform ledger → data_transformed.csv
-5.  src/train_surrogate.py       → train surrogate → models/open_banking_surrogate.pkl
-6.  src/score_accounts.py        → score + generate → reports/Risk_Report.html
-```
+## ⚙️ The Transformation Pipeline
+Before scoring, all inputs run through a strict 7-step mathematical normalization system inside `src/clean.py` & `src/features.py`:
+1. **Sentinel Imputation:** Removing algorithm-breaking flags like `999` Constraints and overwriting impossible median values.
+2. **Winsorization:** All extreme monetary amounts (Incomes, Balances) are mathematically compressed to the `0.5th -> 99.5th percentiles` to prevent hyper-wealthy outliers from corrupting the continuous XGBoost thresholds.
+3. **Structured Derivation:** Constructs massive new burden ratios like `loan_to_income` and `installment_burden` directly from the cleaned base values, presenting a ratio-driven reality to the AI engine.
 
 ---
 
-## ⚙️ Key Config (`src/config.py`)
-- All paths, feature lists, XGBoost hyperparams, and temporal split years are centralized here — this is the **single source of truth** to tweak.
-- Decision threshold `0.30` is intentionally below 0.5 to **maximize recall** (catch more defaulters at the cost of some precision).
+## 🔄 Execution Order
 
----
+To run the Financial Historian pipeline from scratch:
+```bash
+1. python src/clean.py          # Cleans raw parquet to `lending_club_clean.parquet`
+2. python src/train.py          # Trains the 4-layer architecture & evaluates temporal performance
+3. python src/train_final.py    # Retrains the validated architecture on 100% of available data
+```
 
-## 📊 Outputs Already Generated
-- **27 plots** in `outputs/plots/` (EDA, confusion matrix, ROC/PR curves, feature importance, threshold sensitivity, etc.)
-- **Trained `.pkl` files** for both the main and final production models
-- **`reports/Risk_Report.html`** — browser-viewable risk scoring report for open-banking accounts
+**Final Model Performance (2018 Held-Out Test Set):**
+- **Decision Threshold:** `0.30` (Calibrated hyper-aggressively to maximize recall over precision)
+- **Recall:** `99.0%` (Successfully captures almost every true default prior to issuance to protect portfolio capital)
+- **ROC-AUC:** `0.8857` (Exceptionally predictive ranking probability)
