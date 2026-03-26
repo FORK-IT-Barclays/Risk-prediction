@@ -1,33 +1,38 @@
-# 🛡️ Global Risk Prediction Manifest (Blacklist Version)
+# 🛡️ Global Risk Prediction Manifest (Unified Repository Version)
 
-# 1. Block massive dataset types globally
+# 1. 🛑 Block massive data files (Gigabyte scale)
 **/*.csv
 **/*.parquet
 **/*.zip
 **/*.db
 **/*.sqlite
-
-# 2. Block serialized ML weights & binary artifacts
-**/*.pkl
 **/*.h5
-**/*.joblib
 
-# 3. Block specific heavy-usage directories
+# 2. 🛑 Block specific data folders (To be safe)
+lending_club/data/
+universal_historian/data/
+
+# 3. 🛑 Block metadata and temporary files
 **/__pycache__/
 **/*.py[cod]
 **/.ipynb_checkpoints/
+
+# 4. 🛑 Block MoneyViz (Mandatory: Do NOT Push)
 **/moneyviz_surrogate/
 
-# 4. Explicit project data isolation (Ignore these entire folders)
-lending_club/data/
-lending_club/outputs/
-lending_club/models/
+# 5. ✅ ALLOW ALL Machine Learning Artifacts (User Request)
+# The following will NOT be ignored:
+!**/*.pkl
+!**/*.png
+!**/*.txt
 
-universal_historian/data/
-universal_historian/models/
-universal_historian/outputs/
-
-# 5. Allow all other script and documentation files
+# 6. ✅ ALLOW ALL Source Code and Documentation
 !**/*.py
 !**/*.md
 !.gitignore
+
+# 7. ✅ ALLOW Project Model/Output Structures
+!**/outputs/
+!**/models/
+!**/plots/
+!**/reports/
