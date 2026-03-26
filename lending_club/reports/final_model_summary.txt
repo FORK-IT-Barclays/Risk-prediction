@@ -1,0 +1,16 @@
+FINAL PRODUCTION MODEL SUMMARY
+==================================================
+Training data  : 490,636 rows (all post-2012 clean data)
+Features used  : 25
+XGBoost trees  : 400
+scale_pos_weight: 6.63
+Cohort clusters: 20
+
+Validated performance (held-out test 2018):
+  ROC-AUC  : 0.8857
+  PR-AUC   : 0.3246  (9× above random for 3.6% class rate)
+  Recall   : 99.0%
+  FNR      : 1.03%
+
+Deployment threshold: 0.30 (tunable per portfolio)
+Artifacts: outputs/models/*_FINAL.pkl
