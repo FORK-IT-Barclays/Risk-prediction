@@ -1,0 +1,123 @@
+
+=================================================================
+  TEST 1: MoneyVis Inference
+=================================================================
+
+Loading MoneyVis dataset...
+Found 6567 transactions spanning 2015-07-27 to 2022-07-25
+
+========================================================
+MONEYVIS DEPLOYMENT RESULTS (Real-Time Inference Test)
+========================================================
+Generated 50 temporal records tracing customer trajectory.
+
+   reference_date  liquidity_momentum_v  avg_balance_t2  Default_Probability  Is_Distressed
+0      2021-08-16              0.082587    49458.390542            16.000000          False
+1      2021-08-23              0.095815    53874.350219            17.100000          False
+2      2021-08-30              0.100270    49345.851767            25.400000          False
+3      2021-09-06              0.019112    48792.630815            13.900000          False
+4      2021-09-13              0.006203    50241.809105            17.400000          False
+5      2021-09-20              0.055483    57777.956573            24.299999          False
+6      2021-09-27              0.128790    64931.752659            13.800000          False
+7      2021-10-04              0.137591    65410.268481            21.799999          False
+8      2021-10-11              0.131427    66035.755389            25.200001          False
+9      2021-10-18              0.117759    67004.184065            29.200001          False
+10     2021-10-25              0.128527    67791.977852            29.200001          False
+11     2021-11-01              0.176482    68338.940569             8.700000          False
+12     2021-11-08              0.166118    69427.036168            18.400000          False
+13     2021-11-15              0.124240    68456.420922            21.400000          False
+14     2021-11-22              0.098124    67624.445348            17.600000          False
+15     2021-11-29              0.158342    62311.093419             7.300000          False
+16     2021-12-06              0.081495    60660.731278             9.800000          False
+17     2021-12-13              0.047395    58342.117934             8.500000          False
+18     2021-12-20             -0.039407    51633.303614             7.700000          False
+19     2021-12-27              0.008127    60583.665401            33.599998          False
+20     2022-01-03             -0.033343    60108.898063             5.500000          False
+21     2022-01-10             -0.020726    62546.671787             9.000000          False
+22     2022-01-17             -0.044749    59746.293306             6.800000          False
+23     2022-01-24             -0.063752    57290.691967             6.200000          False
+24     2022-01-31             -0.134281    48252.967678             3.900000          False
+25     2022-02-07             -0.110897    51542.769008             7.200000          False
+26     2022-02-14             -0.127449    47499.922314             5.200000          False
+27     2022-02-21             -0.149245    42962.059306             9.800000          False
+28     2022-02-28             -0.141817    41006.357214            24.900000          False
+29     2022-03-07             -0.111735    43300.950035            40.500000          False
+30     2022-03-14             -0.096833    42529.260812            40.500000          False
+31     2022-03-21             -0.056279    42906.529336            25.700001          False
+32     2022-03-28             -0.193539    31560.171887            55.900002           True
+33     2022-04-04             -0.229480    25318.945333            35.299999          False
+34     2022-04-11             -0.260931    20847.790750            48.700001           True
+35     2022-04-18             -0.246214    21561.184024            41.099998          False
+36     2022-04-25             -0.235778    20950.024112            45.400002          False
+37     2022-05-02             -0.280285    11802.338352            44.900002          False
+38     2022-05-09             -0.237547    15503.789664            48.299999           True
+39     2022-05-16             -0.191496    18959.209342            42.099998          False
+40     2022-05-23             -0.134989    23152.741756            51.000000           True
+41     2022-05-30             -0.221988    13592.900023            57.099998           True
+42     2022-06-06             -0.186964    17789.230242            33.500000          False
+43     2022-06-13             -0.147224    21591.580185            50.900002           True
+44     2022-06-20             -0.141799    23607.151753            56.200001           True
+45     2022-06-27             -0.023864    25576.206714            26.299999          False
+46     2022-07-04              0.028120    23008.965034            38.200001          False
+47     2022-07-11              0.034274    23928.152982            32.900002          False
+48     2022-07-18              0.030667    25765.361516            26.200001          False
+49     2022-07-25              0.113766    31959.976979            20.700001          False
+
+Saved inference trace -> E:\Machine learning\barclayss\VECTOR\Berka\Output_Artifacts\moneyvis_predictions.csv
+
+=================================================================
+  TEST 2: Feature Distribution Comparison
+=================================================================
+
+--- Comparison of Feature Distributions (Mean Values) ---
+Feature              |   Berka (Train) | MoneyVis (Test)
+-------------------------------------------------------
+avg_balance_t2       |        44084.24 |        44084.24
+min_balance_t2       |        25065.85 |        25065.85
+total_out_t2         |        78340.96 |        78340.96
+income_erosion_v     |            0.26 |           -0.04
+liquidity_momentum_v |            0.15 |           -0.04
+overdraft_v          |            0.01 |            0.00
+tx_freq_v            |            0.19 |            0.02
+E:\Machine learning\barclayss\VECTOR\Berka\compare_distributions.py:37: UserWarning: set_ticklabels() should only be used with a fixed number of ticks, i.e. after set_ticks() or using a FixedLocator.
+  axes[0].set_xticklabels(["Berka (Training)", "MoneyVis (Scaled)"])
+E:\Machine learning\barclayss\VECTOR\Berka\compare_distributions.py:42: UserWarning: set_ticklabels() should only be used with a fixed number of ticks, i.e. after set_ticks() or using a FixedLocator.
+  axes[1].set_xticklabels(["Berka (Training)", "MoneyVis (Scaled)"])
+
+Visualization saved -> E:\Machine learning\barclayss\VECTOR\Berka\Output_Artifacts\feature_mismatch_check.png
+
+=================================================================
+  TEST 3: Strategy Comparison & Threshold Analysis (5-Fold CV)
+=================================================================
+
+=======================================================
+STRATEGY COMPARISON — Handling 1:8 Class Imbalance
+=======================================================
+
+  [Default (0.50 threshold)]
+    Default Recall (Catch Rate):  64.2%  (catching 529 of 824 defaults)
+    False Positive Rate:          12.0%   (729 unnecessary alerts)
+    Precision on Defaults:        42.1%
+    F2-Score (recall-weighted):   0.581
+
+  [Tuned  (0.35 threshold)]
+    Default Recall (Catch Rate):  74.8%  (catching 616 of 824 defaults)
+    False Positive Rate:          24.0%   (1451 unnecessary alerts)
+    Precision on Defaults:        29.8%
+    F2-Score (recall-weighted):   0.574
+
+  [Tuned  (0.25 threshold)]
+    Default Recall (Catch Rate):  82.3%  (catching 678 of 824 defaults)
+    False Positive Rate:          35.9%   (2176 unnecessary alerts)
+    Precision on Defaults:        23.8%
+    F2-Score (recall-weighted):   0.551
+
+  [F2-Optimal (threshold=0.46)]
+    Default Recall:         68.1%  (catching 561 of 824 defaults)
+    False Positive Rate:    14.7%
+    Precision on Defaults:  38.7%
+    F2-Score:               0.591
+
+  Overall ROC-AUC: 0.8447
+
+  KEY INSIGHT: threshold tuning is free — same model, better recall.

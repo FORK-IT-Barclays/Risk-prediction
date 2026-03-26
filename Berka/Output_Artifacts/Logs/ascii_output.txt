@@ -1,0 +1,13 @@
+LEADERBOARD (threshold=0.46)
+=================================================================
+Strategy                                  AUC   Recall    FPR     F2 Caught
+-----------------------------------------------------------------
+5. Tuned (Optuna)                       0.851    67.0%  12.8%  0.597 552/824
+1. Baseline (scale_pos_weight only)    0.8447    67.8%  14.6%   0.59 559/824
+3. BorderlineSMOTE                     0.8346    66.0%  15.6%  0.568 544/824
+2. SMOTE                               0.8384    65.9%  15.9%  0.566 543/824
+4. ADASYN                              0.8359    70.5%  20.8%  0.566 581/824
+
+Winner: 5. Tuned (Optuna)
+Saved -> behavioral_engine_v2.pkl
+Use prob >= 0.46 for deployment decisions.

@@ -1,0 +1,444 @@
+
+--- PAGE 1 ---
+-Detect Financial Stress Before It Becomes Default
+Theme: Pre-Delinquency Intervention Engine
+VECTOR
+Velocity engine for critical transaction and observation risk
+Barclays Hack O Hire 2026
+
+--- PAGE 2 ---
+TEAM : FORK-IT
+Member 1 : Hitesh MR - Team Leader
+Member 2 : Kavin Kishore I
+Member 3 : Bala Muthu Krishnan B
+Member 4 : Kishor V                                                                                                   
+Member 5 : Kamalika M
+ 2nd Year  -  Information Technology
+ 
+ Sri Sivasubramaniya Nadar College of Engineering
+ 
+
+--- PAGE 3 ---
+Imagine Sarah, a model customer for six years, with a flawless repayment record and a strong relationship 
+with her bank. Nothing seemed unusual until subtle changes began to appear. Her salary was credited five 
+days late. Her savings dropped by 40%. Towards the end of the month, there were three unexpected ATM 
+withdrawals.
+Individually, these were small events. Together, they were early signals of financial stress.
+Three weeks later, Sarah missed her payment. The system finally reacted. A red flag was raised and the 
+collections team called. In a single interaction, a six-year healthy customer relationship was reduced to a 
+recovery case. She felt judged, embarrassed, and disconnected from the bank she had trusted.
+The tragedy is not that the risk appeared suddenly it didn’t. Every warning sign already existed in the data. 
+What was missing was a system that could interpret those signals early and act at the right moment.
+During the pandemic, this was not just one Sarah. It was hundreds of thousands of customers, leading to £4.8 
+billion in bad-loan provisions—not because banks lacked data, but because they lacked anticipatory 
+intelligence.
+VECTOR changes that.
+Story: It Started With Sarah
+
+--- PAGE 4 ---
+The Pandemic Impact (2020 Barclays Data)
+●
+£3.7 billion in credit impairment charges.
+●
+Total bad loan provisions reached ~£4.8 billion.
+●
+Contributing to a 30-66% fall in profits.
+The Core Problem
+●
+Data and technology existed, but systems weren't designed for early, personalized detection.
+●
+Current systems are reactive (30+ days past due), leading to high costs and damaged relationships.
+The Silent Signals of Stress
+●
+Stress begins weeks before default with subtle, individual signals.
+●
+Early warnings: Late salary, draining savings, late bills, unusual small withdrawals.
+●
+Together, these form an unmistakable picture of impending default.
+A New Fundamental Question
+●
+The Pre-Delinquency Intervention Engine changes the focus:
+●
+NOT: "How do we recover from default?"
+●
+BUT: "How do we ensure it never happens?"
+Introduction
+
+--- PAGE 5 ---
+The Real Problem
+Banks only look back. Never forward.
+Most delinquencies can be avoided through a good proactive  customer support by 
+maintaining a strong customer relationship rather than a harsh collection team treatment. 
+By the time a payment is missed, it's already too late. Recovery rates drop to 40–60%. 
+Collections costs shoot up by 15–20% of the recovered amount. And the customer who 
+could have been helped with one early conversation is now a collections case.
+Generic outreach makes it worse. The same message goes to everyone, ignored by over 
+80% of recipients. And when collectors call the damage to the customer relationship is 
+often permanent.
+The data to prevent all of this exists weeks before default. Current systems are simply not 
+designed to read it.
+
+--- PAGE 6 ---
+Traditional credit systems are inherently reactive, triggering only after a customer has already 
+failed. Our Anticipatory Intervention Engine introduces a proactive paradigm shift by applying 
+the "Physics of Risk" to banking data. By calculating the Velocity and Acceleration of 
+behavioral signals, we detect a "Financial Death Spiral" weeks before a default occurs. This 
+enables Barclays to transition from relationship damaging collections to human centered support 
+saving millions in losses and preserving customer relationships. 
+Detailed Solution Breakdown
+●
+Multi-Expert Intelligence Architecture: To handle fragmented data, our system utilizes a 
+Multi-Expert Ensemble. Two specialized models, the Financial Historian, the Behavioral 
+Specialist collaborate to provide a 360° view of customer health. This modularity ensures we 
+pinpoint the exact "force" driving a customer's risk using static and dynamic features. 
+Our Solution: Physics driven Anticipatory 
+Intervention Engine 
+
+--- PAGE 7 ---
+●
+Dynamic Trajectory Tracking (The Physics Engine): We move beyond static, 
+"look-back" scores to analyze dynamic customer trajectories. By measuring Risk Velocity 
+(the speed of behavioral change) and Risk Acceleration (the rate at which a situation is 
+worsening), we map every customer onto a 9-Zone Risk Matrix. This identifies high-risk 
+spirals even when current balances appear stable.
+●
+Stress Type Classifier: After detecting a spiraling risk, providing a generic solution for 
+every type of financial stress isn’t effective.Classifying it into stress categories so that 
+GenAI can provide a meaningful intervene is a mandatory call. For this we use a dataset 
+with labels augmented with domain knowledge. 
+●
+GenAI-Powered Empathy (Intervene): When the engine identifies the stress type, it 
+replaces generic templates with Generative AI outreach. The system drafts 
+hyper-personalized, empathetic messages matched to the customer's specific Risk Zone. 
+Instead of a "Pay Now" alert, it proactively offers supportive solutions like "Payment 
+Holidays" or restructuring plans in a tone that maintains long-term trust.
+Our Solution: Physics driven Anticipatory 
+Intervention Engine 
+
+--- PAGE 8 ---
+THE CORE LOGIC — THE PHYSICS OF RISK 
+Moving from Static Snapshots to Dynamic Trajectories
+THE PROBLEM WITH TRADITIONAL SCORING: Traditional credit systems provide a static 
+"look-back" score. They tell you where a customer was, but not where they are going. By the 
+time a score drops, the customers would have entered a crisis. 
+OUR INNOVATION: VECTOR-BASED DETECTION We apply physics-based principles to 7 
+behavioral signals to detect a "Financial Death Spiral" weeks before a default occurs. We 
+don't just measure debt, we measure the momentum of distress.
+●
+Risk Velocity (V): Measures the Speed of Change. We track how fast a customer’s 
+signals are shifting (e.g., Credit utilization jumping 20% in 15 days). A high-velocity 
+change indicates an immediate shift in financial stability.
+●
+Risk Acceleration (A): Tracks the Intensity of the Spiral. This is the rate at which 
+Velocity is increasing. Positive acceleration identifies a "Crisis Spiral"—the moment when 
+spending frequency increases as savings decay exponentially.
+
+--- PAGE 9 ---
+Signal Framework
+Instead of generic population rules, our engine monitors 7 high-frequency behavioral vectors that 
+represent the actual rhythm of a customer's financial life. Each signal is measured as a deviation from 
+the user’s personal history to detect the earliest signs of distress.
+●
+Signal 1: Salary Timing (Drift) – Measures the exact day salary arrives against the customer's 
+6-month median, delays are the earliest "Look-Ahead" indicators.
+●
+Signal 2: Income Erosion – Tracks any month-on-month decrease in primary salary amount, 
+identifying potential employment instability before it impacts bills.
+●
+Signal 3: Liquidity Momentum – Monitors the speed of savings depletion; a week-on-week 
+drop of >15% signals an exhausting "Safety Net."
+
+--- PAGE 10 ---
+Signal Framework
+●
+Signal 4: Payment Integrity (Bill Drift) – Detects when fixed obligations (utilities, rent) start 
+shifting later in the monthly cycle, even if still paid.
+●
+Signal 5: Failed Auto-Debits – Captures technical or balance-related bounces for EMIs and 
+recurring subscriptions, marking the start of "Financial Juggling."
+●
+Signal 6: Credit Exhaustion – Tracks the Acceleration of credit utilization; rapid jumps toward 
+the limit indicate an emergency reliance on debt.
+●
+Signal 7: Engagement Decay (Digital Silence) – Monitors psychological indicators such as 
+avoiding the banking app or a sudden drop in budgeting tool usage. 
+
+--- PAGE 11 ---
+ Intervention Framework: Decision  Matrix 
+
+--- PAGE 12 ---
+Architecture Diagram
+
+--- PAGE 13 ---
+Tech Stack
+CORE APPLICATION — MERN STACK
+●
+React.js (Frontend): Relationship Manager dashboard with real-time transactions, risk metrics, and 
+collection insights.
+●
+Node.js + Express (Backend): Data orchestration, APIs, WebSocket live alerts, Intervention Approval 
+Queue.
+●
+MongoDB (Database): Stores 7 Behavioral Signals, risk snapshots, and flexible structured data.
+INTELLIGENCE CORE — PYTHON MICROSERVICE
+●
+FastAPI: High-speed async inference gateway for risk predictions.
+●
+Historian Model (XGBoost): Structural financial risk analysis using historical credit data.
+●
+Behavioral Expert (LightGBM): Detects behavioural risk signals from digital patterns.
+●
+Explainable AI (SHAP): Converts predictions into clear decision explanations.
+STREAMING & GENERATIVE LAYER
+●
+Kafka Streaming: Real-time ingestion of transaction events (salary, ATM, bills).
+●
+GenAI (Claude/Gemini): Generates personalized, empathetic outreach messages based on risk zone.
+
+--- PAGE 14 ---
+Data sources and characteristics 
+Dataset source: 
+1) Bank Account Fraud Dataset Suite (NeurIPS 2022)
+2) Home Credit Default Risk
+Data Reasoning: 
+The Home Credit Default Risk and NeurIPS 2022 Bank Account Fraud (BAF) datasets are 
+considered as industry standards due to their robustness in analyzing historical financial capacity 
+and real time behavioral anxiety, which are the two key factors in pre delinquency.
+Framework used for validating data: CAMELS
+The CAMELS framework is an internationally recognized supervisory rating system used by banking 
+regulators (like the Federal Reserve and the RBI) to assess the overall condition, performance, and 
+risk profile of financial institutions.
+
+--- PAGE 15 ---
+Why CAMELS ?
+●
+Regulatory Rigor : It follows institutional risk-assessment standards
+●
+Strategic Precision: Instead of sending a generic "Late Payment" notice, a tailored GenAI 
+message can be sent based on the specific pillar that is failing (e.g., a "Liquidity" alert vs. a 
+"Management" warning).
+●
+Holistic Risk Discovery: Traditional models often rely on "lagging indicators" (static data). 
+CAMELS requires a "qualitative and quantitative" approach that includes Management and 
+Sensitivity. This framework justifies why you must add a behavioral dataset (BAF) to a static 
+one (Home Credit).
+Data sources and characteristics 
+
+--- PAGE 16 ---
+Data source validation logic 
+CAMELS Pillar
+Dataset Validation Logic
+Supporting Features in Choice
+C - Capital Adequacy
+Measures the buffer to absorb losses. Home Credit is best 
+because it identifies "unbanked" capital potential.
+Home Credit: AMT_INCOME_TOTAL, 
+DebtRatio.
+A - Asset Quality
+Evaluates the risk of the loan portfolio. Home Credit provides 
+deep historical "asset decay" records.
+Home Credit: 
+AMT_CREDIT_MAX_OVERDUE, 
+num_tl_30dpd.
+M - Management
+Assesses operational competency. BAF provides real-time 
+"digital management" data that static sets lack.
+BAF: velocity_6h, velocity_24h 
+(Real-time control signals).
+E - Earnings
+Determines income stability and quality. Both datasets 
+provide cross-validation of earning sustainability.
+Home Credit: MonthlyIncome; BAF: 
+income status.
+L - Liquidity
+Ability to meet short-term obligations. Home Credit's payment 
+logs are essential for cash-flow integrity.
+Home Credit: 
+installments_payments.csv deltas.
+S - Sensitivity
+Resilience to market/psychological stress. BAF is the only 
+"golden" source for digital session anxiety.
+BAF: session_length_in_minutes, 
+keep_alive_session.
+
+--- PAGE 17 ---
+Model Decision Architecture
+
+--- PAGE 18 ---
+Unique Selling Points
+●
+Physics-Based Risk Intelligence – Uses Risk Velocity and Acceleration to track financial 
+trajectory, not just static scores.
+●
+Early Detection Engine – Identifies distress signals weeks before missed payments occur.
+●
+9-Zone Dynamic Risk Framework – Maps customers into trajectory-based zones for precise, 
+context-aware actions.
+●
+Multi-Expert AI Architecture – Combines financial history, behavioral patterns, and digital 
+engagement insights.
+●
+Explainable & Compliant Decisions – Transparent AI reasoning with audit-ready explanations.
+●
+Human-in-the-Loop Governance – Tiered intervention model ensuring safe automation with 
+human oversight.
+●
+Empathetic Personalized Outreach – Replaces generic collections messaging with tailored 
+support actions.
+●
+Real-Time Intervention Pipeline – Processes live data streams for immediate detection and 
+response.
+●
+Prevention-Focused Strategy – Shifts from reactive collections to proactive customer support.
+●
+Outcome-Driven Success Metrics – Measures Zone Migration and customer recovery instead 
+of just recovery rates.
+
+--- PAGE 19 ---
+Data Privacy & Minimization
+We only store what is truly necessary, the eight key behavioral signals and essential metadata. We 
+avoid storing full raw transaction descriptions unless absolutely required. This reduces risk and keeps the 
+system focused on meaningful indicators rather than excess data.
+●
+Purpose Limitation
+ 
+The data collected is used strictly for pre-delinquency intervention. It is not repurposed for 
+marketing campaigns or unrelated profiling. The system operates within a clearly defined and ethical 
+boundary.
+●
+Anonymised Data
+ 
+Inside our machine learning pipelines, customer identities are protected. We use hashed 
+customer IDs instead of direct personal information. There are no names, phone numbers, or 
+identifiable details within the ML layer.
+●
+Encryption at Rest and In Transit
+ 
+All stored data is secured using AES-256 encryption at rest. For communication between 
+services and APIs, we use TLS 1.3 encryption to ensure secure data transfer across the network.
+●
+Data Retention Policy
+ 
+Risk assessment snapshots are retained only for a defined time period — for example, 24 
+months. After that, the data is either automatically archived or permanently deleted according to policy.
+
+--- PAGE 20 ---
+Regulatory Compliance (FCA-Aligned Governance)
+●
+FCA Consumer Duty
+ VECTOR is built with strong awareness of FCA expectations, focusing on fair and responsible treatment of 
+customers. The system is designed to identify early signs of financial stress and provide proactive support 
+before harm occurs. Communication is kept clear, respectful, and empathetic, especially for vulnerable 
+customers.
+●
+GDPR Compliance
+ The platform aligns with GDPR principles by ensuring transparency and user control over personal data. 
+Customers have the right to understand how decisions are made through explainable AI methods such as 
+SHAP. They can request access to their data, obtain explanations for risk assessments, and exercise the 
+right to erasure where applicable. A Data Protection Impact Assessment (DPIA) is conducted to evaluate and 
+manage privacy risks.
+●
+Model Governance
+ Strong governance practices ensure accountability and reliability. Model versions are tracked systematically, 
+training datasets are documented, and bias and fairness testing is performed to reduce unintended 
+discrimination. The system also follows a defined schedule for periodic recalibration to maintain performance 
+and accuracy over time.
+●
+Human-in-the-Loop Safeguard
+ Critical decisions always involve human oversight. High-risk actions require approval from a relationship 
+manager, and no autonomous restructuring occurs without review. A clear escalation pathway is defined to 
+ensure responsible handling of sensitive situations.
+
+--- PAGE 21 ---
+Business Impact
+Key Observations
+●
+Data from 2023–2025 represents original historical values.
+●
+Data from 2026–2028 is predicted based on our model projections.
+●
+Without VECTOR, total risk cost shows a steady upward trend, indicating increasing financial exposure.
+●
+With VECTOR, projected data shows a consistent decline in risk cost due to proactive intervention and 
+predictive risk management.
+Strategic Impact
+●
+Reduced credit losses..
+●
+Improved prediction accuracy and early risk detection.
+●
+Better resource allocation and operational efficiency.
+●
+Strong long-term financial stability and growth.
+Overall Inference
+VECTOR shifts risk management from reactive 
+handling to predictive prevention, resulting in 
+measurable cost savings and improved business 
+outcomes.
+
+--- PAGE 22 ---
+Prototype
+Github : Repo Link 
+
+--- PAGE 23 ---
+Demo - Homepage
+
+--- PAGE 24 ---
+Demo - Homepage
+
+--- PAGE 25 ---
+Demo - Customer List
+
+--- PAGE 26 ---
+Demo - Action Matrix
+
+--- PAGE 27 ---
+Demo - Overall Ledger
+
+--- PAGE 28 ---
+Future Scope
+●
+Agentic AI Decision Layer
+Introduce autonomous AI agents that continuously monitor risk trajectory, evaluate multiple 
+intervention strategies, and recommend optimal actions dynamically based on customer context and 
+historical outcomes. Still preserving Human in the loop policy. 
+●
+Adaptive Decision Orchestration
+ 
+Move from rule-based triggers to goal-driven AI agents capable of prioritizing actions (payment 
+rescheduling, proactive outreach, risk monitoring) while maintaining human-in-the-loop governance for 
+high-impact decisions.
+●
+Post-Intervention Intelligence & Feedback Loop
+ 
+Track customer response after intervention (behavior change, repayment stability, engagement 
+signals) and feed outcomes back into the model to continuously improve intervention effectiveness.
+●
+Closed-Loop Risk Lifecycle Management
+ 
+Extend VECTOR from early detection → decision → intervention → outcome tracking → 
+continuous learning, creating a fully adaptive anticipatory banking ecosystem.
+
+--- PAGE 29 ---
+Conclusion
+VECTOR represents a fundamental shift in banking intelligence. By moving from static snapshots to 
+dynamic trajectories, we solve the industry’s greatest challenge: the Reactivity Gap.
+The VECTOR Edge:
+●
+Predictive Precision: By calculating the Velocity (V) and Acceleration (A) of risk, we identify the 
+"Death Spiral" of financial distress weeks before a traditional credit score moves.
+●
+Synchronized Intelligence: Our dual-expert architecture bridges the gap between historical stability 
+(Home Credit) and real-time digital friction (BAF), ensuring every prediction is grounded in both 
+context and current behavior.
+●
+Ethical Innovation: Through Privacy-by-Design and Explainable AI, we transform automated 
+monitoring into a supportive, human-led partnership. We don't just flag failures; we provide the 
+relationship managers with the "Why" and the "How" to fix them.
+VECTOR evolves Barclays from a reactive lender into a Proactive Financial Guardian. We reduce 
+operational losses and NPLs, but more importantly, we preserve Lifetime Customer Value.
+“SUCCESS IS NO LONGER MEASURED BY HOW MUCH DEBT WE RECOVERED, BUT BY HOW MANY 
+TRAJECTORIES WE CORRECTED”
+
+--- PAGE 30 ---
+Thank You

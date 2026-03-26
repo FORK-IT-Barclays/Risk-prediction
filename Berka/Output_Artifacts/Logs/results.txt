@@ -1,0 +1,23 @@
+﻿              precision    recall  f1-score   support
+
+        Good      0.948     0.881     0.913      6053
+     Default      0.424     0.644     0.512       824
+
+    accuracy                          0.853      6877
+   macro avg      0.686     0.763     0.712      6877
+weighted avg      0.885     0.853     0.865      6877
+
+TN=5332  FP=721  FN=293  TP=531
+Default Recall = 64.4%
+False Positive Rate = 11.9%
+
+Feature Importances:
+  min_balance_t2               0.2455  #################################################
+  overdraft_v                  0.1770  ###################################
+  overdraft_t2                 0.1497  #############################
+  income_erosion_v             0.1128  ######################
+  avg_balance_t2               0.0975  ###################
+  liquidity_momentum_v         0.0872  #################
+  total_out_t2                 0.0682  #############
+  tx_freq_v                    0.0621  ############
+  salary_drift_v               0.0000  

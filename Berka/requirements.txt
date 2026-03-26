@@ -1,0 +1,13 @@
+joblib
+pandas
+numpy
+matplotlib
+seaborn
+PyPDF2
+PyMuPDF
+scikit-learn
+xgboost
+imbalanced-learn
+lightgbm
+catboost
+optuna
