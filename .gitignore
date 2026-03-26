@@ -1,37 +1,33 @@
-# 🛡️ Global Risk Prediction Repository Ignore Rules
+# 🛡️ Global Risk Prediction Manifest (Blacklist Version)
 
-# Root Ignore everything by default (standard for this repo's architecture)
-/*
-
-# 🔓 Whitelist the major project modules
-!/lending_club/
-!/universal_historian/
-!/Berka/
-!.gitignore
-
-# 🔴 Blacklist massive datasets (.csv, .parquet, .zip)
+# 1. Block massive dataset types globally
 **/*.csv
 **/*.parquet
 **/*.zip
 **/*.db
 **/*.sqlite
-dataset/
-behavioral_dataset.zip
 
-# 🔴 Blacklist serialized ML artifacts (.pkl, .h5)
+# 2. Block serialized ML weights & binary artifacts
 **/*.pkl
 **/*.h5
-**/models/
-**/model/
-**/moneyviz_surrogate/
+**/*.joblib
 
-# 🟢 Standard Python runtime ignores
+# 3. Block specific heavy-usage directories
 **/__pycache__/
 **/*.py[cod]
-**/*.ipynb_checkpoints/
-
-# 🟢 Specialized Quarantine folders
+**/.ipynb_checkpoints/
 **/moneyviz_surrogate/
 
-# ⚪ Whitelist specific small documentation CSVs if necessary
-!**/sample_data.csv
+# 4. Explicit project data isolation (Ignore these entire folders)
+lending_club/data/
+lending_club/outputs/
+lending_club/models/
+
+universal_historian/data/
+universal_historian/models/
+universal_historian/outputs/
+
+# 5. Allow all other script and documentation files
+!**/*.py
+!**/*.md
+!.gitignore
