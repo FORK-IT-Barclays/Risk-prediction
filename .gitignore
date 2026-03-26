@@ -1,3 +1,27 @@
 dataset/
 behavioral_dataset.zip
 venv/
+
+**/*.csv
+**/*.parquet
+**/*.zip
+**/*.db
+**/*.sqlite
+**/*.pkl
+**/*.h5
+**/*.joblib
+**/__pycache__/
+**/*.py[cod]
+**/.ipynb_checkpoints/
+**/moneyviz_surrogate/
+lending_club/data/
+lending_club/outputs/
+lending_club/models/
+
+universal_historian/data/
+universal_historian/models/
+universal_historian/outputs/
+!**/*.py
+!**/*.md
+!.gitignore
+>>>>>>> d206b9c31041b746cc7c5865691caa88e2af7053

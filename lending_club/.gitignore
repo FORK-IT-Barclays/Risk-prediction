@@ -1,11 +1,31 @@
-# Ignore large datasets and generated artifacts
-/.ipynb_checkpoints/
-*.csv
-*.h5
-*.zip
-*.parquet
-*.db
-*.sqlite
+# Ignore all root files and directories
+/*
+
+# Explicitly whitelist the lending_club folder and the .gitignore file
+!/lending_club/
+!/universal_historian/
+!.gitignore
+
+# Inside lending_club, ignore large datasets and generated artifacts
+/lending_club/data/
+/lending_club/outputs/
+/lending_club/models/
+/lending_club/model/
+/lending_club/moneyviz_surrogate/
+/lending_club/.ipynb_checkpoints/
+/universal_historian/data/
+/universal_historian/models/
+
+# Generic wildcards for large files recursively anywhere in lending_club
+lending_club/**/*.csv
+lending_club/**/*.pkl
+lending_club/**/*.h5
+lending_club/**/*.zip
+lending_club/**/*.parquet
+lending_club/**/*.db
+lending_club/**/*.sqlite
+universal_historian/**/*.parquet
+universal_historian/**/*.pkl
 
 # Standard Python compilation ignores
 **/__pycache__/
