@@ -1,6 +1,6 @@
-# 🛡️ Global Risk-Prediction Master Manifest (Unified Version)
+# 🛡️ Global Risk-Prediction Master Manifest (Final Alpha Version)
 
-# 1. 🛑 Global Big-Data Bloat
+# 1. 🛑 CATEGORICAL BLOCKS (Large Files / Metadata)
 **/*.csv
 **/*.parquet
 **/*.zip
@@ -8,41 +8,35 @@
 **/*.sqlite
 **/*.h5
 **/*.joblib
-
-# 2. 🛑 Global Workspace Noise
+**/*.pdf
 **/__pycache__/
 **/*.py[cod]
 **/.ipynb_checkpoints/
-**/.DS_Store
-Thumbs.db
-.env
-.ipynb
 
-# 3. 🏦 Lending Club Module (Native Engine)
-lending_club/data/
-lending_club/outputs/
-lending_club/models/
-lending_club/model/
-lending_club/moneyviz_surrogate/
+# 2. 🛑 STRICT FOLDER QUARANTINE (Sensitive/Massive)
+**/data/
+**/moneyviz_surrogate/
+Berka/Output_Artifacts/
+Berka/catboost_info/
 
-# 🪐 Universal Historian Module (Agnostic Engine)
-universal_historian/data/
-universal_historian/models/
-universal_historian/outputs/
-
-# 🕵️ Berka Module (Behavioral Analyst Quarantine)
-barclaysppt.pdf
+# 🛡️ INVESTIGATIVE QUARANTINE (Berka Logs)
 Berka/read_pdf2.py
 Berka/presentation_text.txt
 Berka/extracted_ppt_text.txt
-Berka/Output_Artifacts/
-Berka/catboost_info/
-Berka/*.txt
-Berka/*.pdf
+barclaysppt.pdf
 
-# 4. ✅ Whitelisting (The "Core Project")
-!**/*.py
+# 3. ✅ MASTER WHITELISTS (The AI "Brain" & "Evidence")
+# These WILL be pushed regardless of where they are:
+!**/*.pkl
+!**/*.png
 !**/*.md
+!**/*.py
 !.gitignore
 !README.md
-!universal_historian/docs/
+!**/docs/
+!**/plots/
+!**/models/
+!**/reports/
+
+# Specific whitelist for documentation subfolders
+!universal_historian/docs/faq/
