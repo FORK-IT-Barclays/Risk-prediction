@@ -10,7 +10,7 @@ class RealTimeFeatureEngine:
     
     def calculate_velocity(self, t1: float, t2: float) -> float:
         """Dimensionless rate of change between two periods."""
-        return float(((t2 - t1) / (abs(t1) + EPS)).clip(-5, 5))
+        return float(np.clip((t2 - t1) / (abs(t1) + EPS), -5, 5))
 
     def compute_signals(self, ledger_df: pd.DataFrame, ref_date: pd.Timestamp) -> Optional[Dict[str, float]]:
         """
@@ -24,8 +24,11 @@ class RealTimeFeatureEngine:
         df_t2 = ledger_df[(ledger_df["date"] >= t2_start) & (ledger_df["date"] < t2_end)]
         df_t1 = ledger_df[(ledger_df["date"] >= t1_start) & (ledger_df["date"] < t2_start)]
         
-        # Quality Gate: Ensure minimum transaction density in both periods
-        if len(df_t1) < 3 or len(df_t2) < 3:
+        # Match Berka training semantics more closely by excluding leakage tags
+        # and allowing lightly populated windows to still score.
+        df_t1 = df_t1[df_t1["tag"] != "LOAN_PAYMENT"]
+        df_t2 = df_t2[df_t2["tag"] != "LOAN_PAYMENT"]
+        if len(df_t1) < 2 or len(df_t2) < 2:
             return None
             
         # 1. Fundamental Aggregations
@@ -34,8 +37,16 @@ class RealTimeFeatureEngine:
         od_t1, od_t2 = (df_t1["balance"] < 0).sum(), (df_t2["balance"] < 0).sum()
         
         # 2. Category Specifics
-        sal_t1 = df_t1[df_t1["tag"] == "SALARY"]["cash_in"].sum()
-        sal_t2 = df_t2[df_t2["tag"] == "SALARY"]["cash_in"].sum()
+        sal_day_t1 = (
+            df_t1[df_t1["tag"] == "SALARY"]["date"].dt.day.median()
+            if (df_t1["tag"] == "SALARY").any()
+            else np.nan
+        )
+        sal_day_t2 = (
+            df_t2[df_t2["tag"] == "SALARY"]["date"].dt.day.median()
+            if (df_t2["tag"] == "SALARY").any()
+            else np.nan
+        )
         
         # 3. Compute Dimensionless Velocities
         signals = {
@@ -43,7 +54,10 @@ class RealTimeFeatureEngine:
             "liquidity_momentum_v": self.calculate_velocity(bal_t1, bal_t2),
             "overdraft_v":          float(np.clip(od_t2 - od_t1, -5, 5)),
             "overdraft_t2":         float(od_t2),
-            "salary_drift_v":       self.calculate_velocity(sal_t1, sal_t2),
+            "salary_drift_v":       float(
+                (0.0 if np.isnan(sal_day_t2) else sal_day_t2) -
+                (0.0 if np.isnan(sal_day_t1) else sal_day_t1)
+            ),
             "tx_freq_v":            self.calculate_velocity(len(df_t1), len(df_t2)),
         }
         

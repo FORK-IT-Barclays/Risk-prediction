@@ -1,4 +1,11 @@
-# 🛡️ Global Risk-Prediction Master Manifest (Final Production Ver)
+dataset/
+behavioral_dataset.zip
+venv/
+.env
+**/.env
+*.env
+
+# 🛡️ Global Risk-Prediction Master Manifest (Final Produ
 
 # 1. 🛑 CATEGORICAL BLOCKS (Massive Files / Metadata)
 **/*.csv
