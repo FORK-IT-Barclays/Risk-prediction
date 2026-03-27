@@ -1,6 +1,9 @@
 dataset/
 behavioral_dataset.zip
 venv/
+.env
+**/.env
+*.env
 
 **/*.csv
 **/*.parquet
