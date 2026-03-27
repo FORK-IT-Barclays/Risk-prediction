@@ -36,3 +36,12 @@ universal_historian/data/
 !**/models/
 !**/plots/
 !**/reports/
+# 8. 🛑 Block Investigative & Behavioral Artifacts (Berka Quaratine)
+barclaysppt.pdf
+Berka/read_pdf2.py
+Berka/presentation_text.txt
+Berka/extracted_ppt_text.txt
+Berka/Output_Artifacts/
+Berka/catboost_info/
+Berka/*.txt
+Berka/*.pdf
