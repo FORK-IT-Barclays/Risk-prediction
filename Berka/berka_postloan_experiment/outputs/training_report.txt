@@ -14,5 +14,5 @@ Recall             : 0.7714
 F2                 : 0.6352
 FPR                : 0.2184
 TP / FP / TN / FN  : 1178 / 1987 / 7110 / 349
-Leaderboard        : D:\fork_it\berka_postloan_experiment\outputs\leaderboard.csv
-Model artifact     : D:\fork_it\berka_postloan_experiment\models\postloan_best_model.joblib
+Leaderboard        : D:\fork_it\Risk-prediction\Berka\berka_postloan_experiment\outputs\leaderboard.csv
+Model artifact     : D:\fork_it\Risk-prediction\Berka\berka_postloan_experiment\models\postloan_best_model.joblib
