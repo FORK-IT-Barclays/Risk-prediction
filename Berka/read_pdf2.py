@@ -24,4 +24,4 @@ def read_pdf(filepath):
         print(f"Failed to extract: {e}")
 
 if __name__ == "__main__":
-    read_pdf(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "barclayspptx.pdf"))
+    read_pdf(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "barclaysppt.pdf"))
