@@ -5,6 +5,9 @@ venv/
 **/.env
 *.env
 
+# 🛡️ Global Risk-Prediction Master Manifest (Final Produ
+
+# 1. 🛑 CATEGORICAL BLOCKS (Massive Files / Metadata)
 **/*.csv
 **/*.parquet
 **/*.zip
@@ -12,18 +15,44 @@ venv/
 **/*.sqlite
 **/*.h5
 **/*.joblib
+**/*.pdf
 **/__pycache__/
 **/*.py[cod]
 **/.ipynb_checkpoints/
-**/moneyviz_surrogate/
-lending_club/data/
-lending_club/outputs/
-lending_club/models/
 
-universal_historian/data/
-universal_historian/models/
-universal_historian/outputs/
-!**/*.py
-!**/*.md
+# 2. 🛑 STRICT FOLDER QUARANTINE
+**/data/
+**/moneyviz_surrogate/
+Berka/Output_Artifacts/
+Berka/catboost_info/
+Berka/read_pdf2.py
+Berka/presentation_text.txt
+Berka/extracted_ppt_text.txt
+barclaysppt.pdf
+
+# 3. ✅ EXPLICIT WHITELISTS (The "AI Brain")
+# We only allow artifacts in specific project folders to avoid leaking sensitive files.
+
+# Documentation & Git
 !.gitignore
->>>>>>> d206b9c31041b746cc7c5865691caa88e2af7053
+!README.md
+!**/docs/
+!**/docs/**/*.md
+!**/docs/**/*.png
+!universal_historian/docs/faq/
+!universal_historian/docs/faq/*.md
+
+# Source Code
+!universal_historian/src/*.py
+!lending_club/src/*.py
+!Berka/*.py
+
+# Model Artifacts (The "Trained Brains")
+!universal_historian/models/*.pkl
+!lending_club/models/*.pkl
+
+# Analytical Evidence (Plots & Reports)
+!universal_historian/outputs/plots/*.png
+!lending_club/outputs/plots/*.png
+!universal_historian/docs/*.md
+!lending_club/*.md
