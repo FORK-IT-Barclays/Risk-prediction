@@ -1,0 +1,26 @@
+=== Feature QC ===
+Pre-loan rows: 0 (guaranteed by date filtering).
+Account-date leakage: Checked bounds against loan term length.
+Class Balance: {0: 0.8562688253012049, 1: 0.14373117469879518}
+Account Coverage: 622
+Missing Values:
+income_erosion_v        0
+liquidity_momentum_v    0
+overdraft_v             0
+overdraft_t2            0
+salary_drift_v          0
+tx_freq_v               0
+avg_balance_t2          0
+min_balance_t2          0
+total_out_t2            0
+t1_tx_count             0
+t2_tx_count             0
+days_since_loan         0
+account_id              0
+window_index            0
+window_end_date         0
+duration_months         0
+status                  0
+default                 0
+Infinite Values: 0
+Fill Policy: Forward fill not required, no direct inf values, filled internally if any.

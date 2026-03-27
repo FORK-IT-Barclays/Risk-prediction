@@ -1,0 +1,18 @@
+BERKA POST-LOAN EXPERIMENT
+========================================
+Training rows      : 10,624
+Accounts           : 622
+Default rate       : 14.37%
+Best model         : ExtraTrees
+Best params        : {"max_depth": null, "max_features": "sqrt", "min_samples_leaf": 3, "n_estimators": 400}
+Threshold          : 0.3444
+ROC-AUC            : 0.8739
+PR-AUC             : 0.6922
+Accuracy           : 0.7801
+Precision          : 0.3722
+Recall             : 0.7714
+F2                 : 0.6352
+FPR                : 0.2184
+TP / FP / TN / FN  : 1178 / 1987 / 7110 / 349
+Leaderboard        : D:\fork_it\berka_postloan_experiment\outputs\leaderboard.csv
+Model artifact     : D:\fork_it\berka_postloan_experiment\models\postloan_best_model.joblib
