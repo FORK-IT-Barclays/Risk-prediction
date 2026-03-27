@@ -176,13 +176,14 @@ The fusion layer is a score transformer. It is not a weighted ensemble and it do
 Formula:
 
 ```text
-final_risk_score = clamp(historian_score + 0.30 * (behavioral_score - 0.50), 0.0, 1.0)
+final_risk_score = clamp(historian_score + 0.30 * (behavioral_score - 0.46), 0.0, 1.0)
 ```
 
 Meaning:
 
 - historian score anchors structural risk
 - behavioral score applies a bounded moderate override
+- the behavioral neutral point is the deployed model threshold `0.46`
 - max behavior-driven movement is `+/- 0.15`
 
 Fallback behavior:
