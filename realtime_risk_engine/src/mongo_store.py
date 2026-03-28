@@ -1,4 +1,5 @@
 import os
+import logging
 from datetime import datetime, timezone
 
 import pandas as pd
@@ -15,6 +16,7 @@ DEFAULT_DB = "realtime_risk_engine"
 DEFAULT_CUSTOMERS_COLLECTION = "customers"
 DEFAULT_TRANSACTIONS_COLLECTION = "transactions"
 ENV_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
+logger = logging.getLogger("realtime_risk_engine.transactions")
 
 
 class MongoRiskRepository:
@@ -87,6 +89,29 @@ class MongoRiskRepository:
                 else result["behavioral"]["behavioral_score"]
             ),
         }
+        shap_snapshot = {
+            "calculated_at": calculated_at,
+            "historian_shap": (
+                None
+                if result["historian"] is None
+                else result["historian"].get("historian_shap")
+            ),
+            "historian_shap_bias": (
+                None
+                if result["historian"] is None
+                else result["historian"].get("historian_shap_bias")
+            ),
+            "behavioral_shap": (
+                None
+                if result["behavioral"] is None
+                else result["behavioral"].get("behavioral_shap")
+            ),
+            "behavioral_shap_bias": (
+                None
+                if result["behavioral"] is None
+                else result["behavioral"].get("behavioral_shap_bias")
+            ),
+        }
 
         self.customers.update_one(
             {"account_id": account_id},
@@ -94,6 +119,7 @@ class MongoRiskRepository:
                 "$set": {
                     "account_id": account_id,
                     "latest_prediction": snapshot,
+                    "latest_shap": shap_snapshot,
                     "updated_at": calculated_at,
                 },
                 "$push": {"risk_history": snapshot},
@@ -140,6 +166,16 @@ class MongoRiskRepository:
                 "$push": {"transactions": transaction_record},
             },
             upsert=True,
+        )
+        logger.info(
+            "transaction_appended account_id=%s date=%s type=%s desc=%s credit=%.2f debit=%.2f balance=%.2f",
+            account_id,
+            transaction_record.get("transaction_date"),
+            transaction_record.get("transaction_type"),
+            transaction_record.get("description"),
+            float(transaction_record.get("credit_amount", 0.0)),
+            float(transaction_record.get("debit_amount", 0.0)),
+            float(transaction_record.get("balance", 0.0)),
         )
 
     def get_customer(self, account_id: str):
@@ -199,12 +235,14 @@ class MongoRiskRepository:
                 "_id": 0,
                 "account_id": 1,
                 "latest_prediction": 1,
+                "latest_shap": 1,
                 "risk_history": 1,
                 "updated_at": 1,
             },
         )
         for doc in cursor:
             latest = doc.get("latest_prediction")
+            latest_shap = doc.get("latest_shap")
             history = doc.get("risk_history", [])
             timestamps_all = [entry.get("calculated_at") for entry in history if entry.get("calculated_at")]
             score_history = [
@@ -232,6 +270,7 @@ class MongoRiskRepository:
                     "risk_score_timestamps_all": timestamps_all,
                     "risk_score_history": score_history,
                     "latest_prediction": latest,
+                    "latest_shap": latest_shap,
                 }
             )
         rows.sort(key=lambda x: x["account_id"] or "")

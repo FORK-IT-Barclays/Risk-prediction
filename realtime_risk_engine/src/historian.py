@@ -6,6 +6,7 @@ from typing import Dict
 
 import joblib
 import pandas as pd
+import xgboost as xgb
 
 from .config import (
     HISTORIAN_FEATURE_MAP_PATH,
@@ -109,6 +110,14 @@ class UniversalHistorian:
     def score_profile(self, profile: Dict[str, float]) -> Dict[str, object]:
         X = self.build_feature_frame(profile)
         probability = float(self.model.predict_proba(X)[0, 1])
+        dmatrix = xgb.DMatrix(X, feature_names=self.feature_names)
+        contribs = self.model.get_booster().predict(dmatrix, pred_contribs=True)
+        shap_row = contribs[0]
+        shap_values = {
+            feature: float(shap_row[idx])
+            for idx, feature in enumerate(self.feature_names)
+        }
+        shap_bias = float(shap_row[len(self.feature_names)])
         return {
             "historian_score": round(probability, 4),
             "historian_scored_at": datetime.now(timezone.utc).isoformat(),
@@ -116,4 +125,6 @@ class UniversalHistorian:
             "historian_features": {
                 feature: float(X.iloc[0][feature]) for feature in self.feature_names
             },
+            "historian_shap": shap_values,
+            "historian_shap_bias": shap_bias,
         }
