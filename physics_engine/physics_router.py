@@ -1,45 +1,42 @@
 from fastapi import APIRouter
 from realtime_risk_engine.src.mongo_store import MongoRiskRepository
-from .meta_physics import MetaPhysicsEngine
-from typing import List, Dict, Any
 
 router = APIRouter()
 
 @router.get("/physics_engine")
 def get_physics_analysis():
     """
-    Independent trajectory analysis endpoint.
-    Retrieves risk history from MongoDB and computes Layer 3 Physics.
+    Read-only view of the latest stored trajectory decisions.
+    The authoritative physics calculation happens inside /risk-score.
     """
     repo = MongoRiskRepository.from_env()
-    engine = MetaPhysicsEngine()
-    
-    account_ids = repo.list_account_ids()
     physics_reports = []
 
-    for account_id in account_ids:
-        # Pull history (as calculated by /risk-score or /all_scores)
-        history = repo.load_risk_history(account_id)
-        
-        if not history or len(history) < 2:
+    for row in repo.list_latest_scores():
+        latest = row.get("latest_prediction") or {}
+        trajectory = latest.get("trajectory")
+        decision = latest.get("decision_matrix")
+
+        if not trajectory:
             physics_reports.append({
-                "account_id": account_id,
+                "account_id": row.get("account_id"),
                 "status": "INSUFFICIENT_HISTORY",
-                "trajectory": None
+                "trajectory": None,
+                "decision_matrix": decision,
             })
             continue
 
-        analysis = engine.analyze(history)
         physics_reports.append({
-            "account_id": account_id,
+            "account_id": row.get("account_id"),
             "status": "OK",
-            "current_risk": analysis.get("current_risk"),
-            "velocity": analysis.get("velocity"),
-            "acceleration": analysis.get("acceleration"),
-            "zone": analysis.get("zone"),
-            "days_to_default": analysis.get("days_to_default"),
-            "confidence": analysis.get("confidence"),
-            "last_updated": analysis.get("analysed_at")
+            "current_risk": trajectory.get("current_risk"),
+            "velocity": trajectory.get("velocity"),
+            "acceleration": trajectory.get("acceleration"),
+            "zone": trajectory.get("zone"),
+            "days_to_default": trajectory.get("days_to_default"),
+            "confidence": trajectory.get("confidence"),
+            "decision_matrix": decision,
+            "last_updated": trajectory.get("analysed_at"),
         })
 
     return {

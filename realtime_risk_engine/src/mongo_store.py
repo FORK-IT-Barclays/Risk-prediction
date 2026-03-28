@@ -88,6 +88,25 @@ class MongoRiskRepository:
                 "confidence": trajectory.get("confidence"),
                 "trend": trajectory.get("trend"),
                 "days_to_default": trajectory.get("days_to_default"),
+                "current_risk": trajectory.get("current_risk"),
+                "trajectory_window": trajectory.get("trajectory_window"),
+                "analysed_at": trajectory.get("analysed_at"),
+            }
+
+        decision_matrix = result.get("decision_matrix")
+        decision_snapshot = None
+        if decision_matrix:
+            decision_snapshot = {
+                "zone": decision_matrix.get("zone"),
+                "confidence": decision_matrix.get("confidence"),
+                "risk_band": decision_matrix.get("risk_band"),
+                "intervention_required": decision_matrix.get(
+                    "intervention_required"
+                ),
+                "stress_classification_required": decision_matrix.get(
+                    "stress_classification_required"
+                ),
+                "reason": decision_matrix.get("reason"),
             }
 
         stress_profile = result.get("stress_profile") or {}
@@ -111,6 +130,7 @@ class MongoRiskRepository:
             "stress_score_share": stress_profile.get("stress_score_share"),
             "stress_confidence_band": stress_profile.get("stress_confidence_band"),
             "trajectory": trajectory_snapshot,
+            "decision_matrix": decision_snapshot,
         }
         shap_snapshot = {
             "calculated_at": calculated_at,
@@ -146,6 +166,51 @@ class MongoRiskRepository:
                     "updated_at": calculated_at,
                 },
                 "$push": {"risk_history": snapshot},
+            },
+            upsert=True,
+        )
+
+    def save_intervention_report(self, account_id: str, report: dict):
+        generated_at = datetime.now(timezone.utc).isoformat()
+        snapshot = {
+            "generated_at": generated_at,
+            "provider_status": report.get("provider_status"),
+            "context_packet": report.get("context_packet"),
+            "draft": report.get("draft"),
+        }
+        self.customers.update_one(
+            {"account_id": account_id},
+            {
+                "$set": {
+                    "latest_intervention_report": snapshot,
+                    "updated_at": generated_at,
+                },
+                "$push": {"intervention_report_history": snapshot},
+            },
+            upsert=True,
+        )
+
+    def save_email_delivery(self, account_id: str, delivery: dict):
+        sent_at = datetime.now(timezone.utc).isoformat()
+        snapshot = {
+            "sent_at": sent_at,
+            "provider": delivery.get("provider"),
+            "to": delivery.get("to"),
+            "from": delivery.get("from"),
+            "subject": delivery.get("subject"),
+            "message_id": delivery.get("message_id"),
+            "status": delivery.get("status"),
+            "status_code": delivery.get("status_code"),
+            "response_body": delivery.get("response_body"),
+        }
+        self.customers.update_one(
+            {"account_id": account_id},
+            {
+                "$set": {
+                    "latest_email_delivery": snapshot,
+                    "updated_at": sent_at,
+                },
+                "$push": {"email_delivery_history": snapshot},
             },
             upsert=True,
         )
@@ -285,6 +350,7 @@ class MongoRiskRepository:
                     "secondary_stress_type": entry.get("secondary_stress_type"),
                     "stress_score_share": entry.get("stress_score_share"),
                     "stress_confidence_band": entry.get("stress_confidence_band"),
+                    "decision_matrix": entry.get("decision_matrix"),
                     "status": entry.get("status"),
                 }
                 for entry in history

@@ -1,5 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
+from .intervention.service import build_intervention_report
+from .intervention.service import send_intervention_email
 from .demo_stream import DemoStreamController
 from .inference import RiskEngine
 from .mongo_store import MongoRiskRepository
@@ -48,6 +50,7 @@ def trigger_risk_score():
                 if result["behavioral"] is None
                 else result["behavioral"]["behavioral_score"],
                 "trajectory": result.get("trajectory"),
+                "decision_matrix": result.get("decision_matrix"),
                 "stress_profile": result.get("stress_profile"),
                 "current_shap": {
                     "historian_shap": None
@@ -107,3 +110,36 @@ def stop_demo():
 def demo_stats():
     """Inspect live transaction generation stats while the demo stream runs."""
     return demo_controller.get_stats()
+
+
+@app.get("/intervention-report/{account_id}")
+def intervention_report(account_id: str):
+    repo = MongoRiskRepository.from_env()
+    repo.ping()
+    customer_doc = repo.get_customer(account_id)
+    if not customer_doc:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    if not customer_doc.get("latest_prediction"):
+        raise HTTPException(
+            status_code=400,
+            detail="No scored prediction found for this customer. Trigger /risk-score first.",
+        )
+    report = build_intervention_report(account_id, customer_doc)
+    repo.save_intervention_report(account_id, report)
+    return report
+
+
+@app.post("/send-email/{account_id}")
+def send_email(account_id: str):
+    repo = MongoRiskRepository.from_env()
+    repo.ping()
+    customer_doc = repo.get_customer(account_id)
+    if not customer_doc:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    try:
+        result = send_intervention_email(account_id, customer_doc)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    repo.save_intervention_report(account_id, result["report"])
+    repo.save_email_delivery(account_id, result["email_delivery"])
+    return result

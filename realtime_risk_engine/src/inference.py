@@ -14,21 +14,68 @@ from .stress_type import classify_stress_from_shap
 from .transformer import UniversalTransformer
 
 
+def _decision_matrix_from_trajectory(trajectory: dict | None) -> dict:
+    zone = None if not trajectory else trajectory.get("zone")
+    confidence = None if not trajectory else trajectory.get("confidence")
+
+    if not isinstance(zone, str):
+        return {
+            "zone": zone,
+            "confidence": confidence,
+            "risk_band": "unknown",
+            "intervention_required": False,
+            "stress_classification_required": False,
+            "reason": "trajectory_unavailable",
+        }
+
+    if zone.startswith("SAFE"):
+        return {
+            "zone": zone,
+            "confidence": confidence,
+            "risk_band": "low_risk",
+            "intervention_required": False,
+            "stress_classification_required": False,
+            "reason": "low_risk_zone",
+        }
+
+    confidence_text = str(confidence or "").upper()
+    if "WAIT" in confidence_text or "INSUFFICIENT" in confidence_text:
+        return {
+            "zone": zone,
+            "confidence": confidence,
+            "risk_band": "elevated_risk",
+            "intervention_required": False,
+            "stress_classification_required": False,
+            "reason": "trajectory_not_actionable",
+        }
+
+    is_high_risk = zone.startswith("CRITICAL")
+    is_worsening = zone.endswith("WORSENING") or zone.endswith("SPIRAL")
+
+    if is_high_risk or is_worsening:
+        return {
+            "zone": zone,
+            "confidence": confidence,
+            "risk_band": "high_risk" if is_high_risk else "elevated_risk",
+            "intervention_required": True,
+            "stress_classification_required": True,
+            "reason": "high_or_worsening_zone",
+        }
+
+    return {
+        "zone": zone,
+        "confidence": confidence,
+        "risk_band": "elevated_risk",
+        "intervention_required": False,
+        "stress_classification_required": False,
+        "reason": "non_worsening_non_high_zone",
+    }
+
+
 def _trajectory_is_actionable(trajectory: dict | None) -> bool:
-    if not trajectory:
-        return False
-
-    zone = trajectory.get("zone")
-    if not isinstance(zone, str) or not (
-        zone.startswith("WATCH") or zone.startswith("CRITICAL")
-    ):
-        return False
-
-    confidence = str(trajectory.get("confidence") or "").upper()
-    if "WAIT" in confidence or "INSUFFICIENT" in confidence:
-        return False
-
-    return True
+    return _decision_matrix_from_trajectory(trajectory)[
+        "stress_classification_required"
+    ]
 
 
 class RiskEngine:
@@ -144,6 +191,7 @@ class RiskEngine:
         calculated_at = datetime.now(timezone.utc).isoformat()
         status = "OK" if final_score is not None else "INSUFFICIENT_DATA"
         trajectory = None
+        decision_matrix = None
         stress_profile = None
 
         if final_score is not None:
@@ -155,7 +203,8 @@ class RiskEngine:
                 }
             )
             trajectory = self.meta_physics.analyze(history_for_trajectory)
-            if _trajectory_is_actionable(trajectory):
+            decision_matrix = _decision_matrix_from_trajectory(trajectory)
+            if decision_matrix["stress_classification_required"]:
                 stress_profile = classify_stress_from_shap(
                     None
                     if historian_result is None
@@ -170,6 +219,7 @@ class RiskEngine:
             "historian": historian_result,
             "behavioral": behavioral_result,
             "trajectory": trajectory,
+            "decision_matrix": decision_matrix,
             "stress_profile": stress_profile,
             "calculated_at": calculated_at,
             "final_risk_score": None if final_score is None else round(final_score, 4),
