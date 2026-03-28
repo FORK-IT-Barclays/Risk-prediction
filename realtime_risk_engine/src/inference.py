@@ -4,12 +4,31 @@ from datetime import datetime, timezone
 import joblib
 import pandas as pd
 import xgboost as xgb
+from physics_engine.meta_physics import MetaPhysicsEngine
 
 from .config import BEHAVIORAL_MODEL_PATH, F2_OPTIMAL_THRESHOLD
 from .feature_engine import RealTimeFeatureEngine
 from .fusion import fuse_scores
 from .historian import UniversalHistorian
+from .stress_type import classify_stress_from_shap
 from .transformer import UniversalTransformer
+
+
+def _trajectory_is_actionable(trajectory: dict | None) -> bool:
+    if not trajectory:
+        return False
+
+    zone = trajectory.get("zone")
+    if not isinstance(zone, str) or not (
+        zone.startswith("WATCH") or zone.startswith("CRITICAL")
+    ):
+        return False
+
+    confidence = str(trajectory.get("confidence") or "").upper()
+    if "WAIT" in confidence or "INSUFFICIENT" in confidence:
+        return False
+
+    return True
 
 
 class RiskEngine:
@@ -23,6 +42,7 @@ class RiskEngine:
         self.transformer = UniversalTransformer()
         self.feature_engine = RealTimeFeatureEngine()
         self.historian = UniversalHistorian()
+        self.meta_physics = MetaPhysicsEngine()
 
         if not os.path.exists(BEHAVIORAL_MODEL_PATH):
             raise FileNotFoundError(
@@ -121,12 +141,37 @@ class RiskEngine:
             behavioral_score = behavioral_result.get("behavioral_score")
 
         final_score = fuse_scores(historian_score, behavioral_score)
+        calculated_at = datetime.now(timezone.utc).isoformat()
         status = "OK" if final_score is not None else "INSUFFICIENT_DATA"
+        trajectory = None
+        stress_profile = None
+
+        if final_score is not None:
+            history_for_trajectory = list(risk_history or [])
+            history_for_trajectory.append(
+                {
+                    "calculated_at": calculated_at,
+                    "final_risk_score": round(final_score, 4),
+                }
+            )
+            trajectory = self.meta_physics.analyze(history_for_trajectory)
+            if _trajectory_is_actionable(trajectory):
+                stress_profile = classify_stress_from_shap(
+                    None
+                    if historian_result is None
+                    else historian_result.get("historian_shap"),
+                    None
+                    if behavioral_result is None
+                    else behavioral_result.get("behavioral_shap"),
+                )
 
         return {
             "account_id": account_id,
             "historian": historian_result,
             "behavioral": behavioral_result,
+            "trajectory": trajectory,
+            "stress_profile": stress_profile,
+            "calculated_at": calculated_at,
             "final_risk_score": None if final_score is None else round(final_score, 4),
             "status": status,
         }
