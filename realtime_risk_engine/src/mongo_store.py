@@ -88,6 +88,13 @@ class MongoRiskRepository:
                 if result["behavioral"] is None
                 else result["behavioral"]["behavioral_score"]
             ),
+            "stress_type": result.get("stress_profile", {}).get("stress_type"),
+            "secondary_stress_type": result.get("stress_profile", {}).get(
+                "secondary_stress_type"
+            ),
+            "stress_confidence": result.get("stress_profile", {}).get(
+                "stress_confidence"
+            ),
         }
         shap_snapshot = {
             "calculated_at": calculated_at,
@@ -251,6 +258,9 @@ class MongoRiskRepository:
                     "final_risk_score": entry.get("final_risk_score"),
                     "historian_score": entry.get("historian_score"),
                     "behavioral_score": entry.get("behavioral_score"),
+                    "stress_type": entry.get("stress_type"),
+                    "secondary_stress_type": entry.get("secondary_stress_type"),
+                    "stress_confidence": entry.get("stress_confidence"),
                     "status": entry.get("status"),
                 }
                 for entry in history

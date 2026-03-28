@@ -45,6 +45,7 @@ def trigger_risk_score():
                 "behavioral_score": None
                 if result["behavioral"] is None
                 else result["behavioral"]["behavioral_score"],
+                "stress_profile": result.get("stress_profile"),
                 "current_shap": {
                     "historian_shap": None
                     if result["historian"] is None

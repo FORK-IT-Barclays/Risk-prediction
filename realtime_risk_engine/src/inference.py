@@ -9,6 +9,7 @@ from .config import BEHAVIORAL_MODEL_PATH, F2_OPTIMAL_THRESHOLD
 from .feature_engine import RealTimeFeatureEngine
 from .fusion import fuse_scores
 from .historian import UniversalHistorian
+from .stress_type import classify_stress_from_shap
 from .transformer import MoneyVisTransformer
 
 
@@ -116,11 +117,16 @@ class RiskEngine:
 
         final_score = fuse_scores(historian_score, behavioral_score)
         status = "OK" if final_score is not None else "INSUFFICIENT_DATA"
+        stress_profile = classify_stress_from_shap(
+            None if historian_result is None else historian_result.get("historian_shap"),
+            None if behavioral_result is None else behavioral_result.get("behavioral_shap"),
+        )
 
         return {
             "account_id": account_id,
             "historian": historian_result,
             "behavioral": behavioral_result,
+            "stress_profile": stress_profile,
             "final_risk_score": None if final_score is None else round(final_score, 4),
             "status": status,
         }
