@@ -9,11 +9,6 @@
 
 ## Executive Summary
 
-This system implements two complementary machine learning models for credit risk assessment:
-
-1. **Financial Historian Model** (Primary): A sophisticated 4-layer composite system using 25 features from comprehensive credit bureau data. Achieves **98.87% recall** on held-out 2018 test data, capturing nearly all defaulters at the cost of higher false alarm rate.
-
-2. **Open Banking Surrogate Model** (Secondary): A lightweight model using only 4 features extracted from raw bank transaction ledgers (no credit bureau required). Enables scoring of applicants without traditional credit history.
 
 ---
 
@@ -373,26 +368,19 @@ All 25 features undergo **7-step production cleaning** before model training:
 
 ---
 
-## Part 3: Open Banking Surrogate Model (Secondary)
 
-### 3.1 Purpose & Use Case
+---
 
-**Why a second model?**
-- **Primary (Financial Historian)** requires comprehensive credit bureau data (credit score, account history, public records, etc.)
-- **Barrier:** ~15–20% of viable borrowers have **no credit history** (thin file) or no score (new immigrants, young adults)
-- **Business Need:** Underwrite these "credit invisible" segments using alternative data
+## Part 3: (Removed)
 
-**Solution: Open Banking Surrogate**
-- Scores applicants using **only 4 features** extracted from raw bank transaction ledgers
-- No credit bureau required; works for thin-file and credit-invisible borrowers
-- Trade-off: Lower accuracy than full Financial Historian, but better than denying all credit-invisible applicants
+*This section on surrogate open-banking models was removed as the project focuses exclusively on the core Financial Historian and Behavioral Analyst modules.*
 
 ### 3.2 Data Pipeline
 
 ```
-Raw bank ledger (data.csv)
+Raw bank ledger
   ↓
-moneyviz_transformer.py
+transformer.py
   ├─ Parse transaction descriptions for "salary", "payroll", "wage"
   ├─ Extract monthly income averages from large credits
   ├─ Identify fixed debits (loans, mortgage, subscriptions)
@@ -415,97 +403,17 @@ score_accounts.py
   └─ Generate Risk_Report.html with visual dashboard
 ```
 
-### 3.3 The 4 Surrogate Features
 
-All extracted from transaction descriptions and balances (no credit bureau):
+---
 
-| Feature | Extraction Method | Proxy For | Example |
-|---------|-------------------|-----------|---------|
-| `annual_inc` | Sum of large credits tagged "salary", "payroll", "wage" | True annual income | Account shows 2 deposits of $3,000 → 12× average = $36k/year |
-| `dti` | Identify recurring debits (mortgage, loan payments, utilities); monthly debt / monthly income | True debt-to-income | Account shows $1,200 mortgage + $300 auto loan + $200 utilities = $1,700/mo debt. Income $4,000/mo → DTI = 42.5%. |
-| `loan_to_income` | Assumed standard loan request ($15,000) / extracted income | Loan burden ratio | Extracted income $36k → loan_to_income = 15,000 / 36,000 = 0.42 |
-| `delinq_2yrs` | Count of "overdraft", "fee", "insufficient funds", "late", "penalty" flags in transaction descriptions | Delinquency proxy (count) | Account shows 3 overdraft fees in 24 months → delinq_2yrs = 3 |
 
-**Transformation Algorithm:**
+---
 
-```python
-for each_account:
-    # 1. Income proxy — find salary-like credits
-    salary_credits = transactions[desc contains 'salary|payroll|wage|employer|bacs']
-    if len(salary_credits) > 0:
-        avg_monthly = salary_credits['amount'].top_3_average()
-    else:
-        avg_monthly = large_credits[amount > $500].average()
-    annual_inc = max(avg_monthly × 12, $12,000)  # Floor at minimum
-    
-    # 2. DTI proxy — find debt-like debits
-    debt_debits = transactions[desc contains 'loan|mortgage|finance|standing|direct']
-    monthly_debt = debt_debits['amount'].frequency_adjusted()
-    dti = (monthly_debt × 12) / annual_inc × 100
-    
-    # 3. Delinquency proxy — count fee events
-    fee_events = transactions[desc contains 'overdraft|fee|insufficient|late|penalty']
-    delinq_2yrs = min(len(fee_events), 20)  # Cap at 20
-    
-    # 4. Loan-to-income proxy
-    assumed_loan_request = $15,000  # Standard underwriting
-    loan_to_income = assumed_loan_request / annual_inc
-```
 
-### 3.4 Surrogate Model Architecture
+---
 
-```
-XGBoost Classifier (Loan prediction on 4 features)
-├─ Estimators: 150 trees
-├─ Max Depth: 5 (shallower than primary, less data to learn on)
-├─ Learning Rate: 0.08
-├─ Feature Sample: 80%
-├─ SMOTE Balancing: Oversample defaults to 50% during training
-│   (Test set: ~3.6% defaults — realistic)
-└─ eval_metric: AUCPR (precision-recall)
 
-Training:
-  - Load lending_club_preprocessed_sample.csv (490,636 rows)
-  - Extract [annual_inc, dti, loan_to_income, delinq_2yrs]
-  - Split 80/20 train/test, stratified by target
-  - Apply SMOTE to train set → balance classes
-  - Train on balanced; evaluate on original test split
-```
-
-**Performance Metrics:**
-```
-Test Set Performance:
-  Accuracy  : Not reported (dominated by 96% negative class)
-  Precision : Not reported
-  Recall    : To be checked (expected: 75–85%, lower than full model)
-  F1 Score  : Not reported
-```
-
-### 3.5 Open Banking Inference (score_accounts.py)
-
-**Input:** Raw bank transaction ledger (data.csv)
-```
-| Date       | Account # | Description          | Debit | Credit | Balance |
-|------------|-----------|----------------------|-------|--------|---------|
-| 2024-01-01 | ACC001    | Salary Deposit       |       | 4,200  | 8,342   |
-| 2024-01-02 | ACC001    | Standing Order – Mort|  1,200|        | 7,142   |
-| 2024-01-03 | ACC001    | Overdraft Fee        | 35    |        | 7,107   |
-```
-
-**Output:** Risk_Report.html with visual table
-
-```html
-Summary Statistics:
-  - Total Accounts: 47,328
-  - High Risk (>50% probability): 3,142
-  - Low Risk (≤50% probability): 44,186
-  
-Account# | Annual Inc | Proxy DTI | Fee Events | Risk % | Decision
----------|-----------|-----------|-----------|--------|----------
-ACC001   | $50,400   | 28.6%     | 3         | 62.1%  | High Risk / Denial
-ACC002   | $75,000   | 18.2%     | 0         | 8.3%   | Low Risk / Approve
-...
-```
+---
 
 ---
 
@@ -914,7 +822,7 @@ results.to_csv('underwriting_decisions.csv', index=False)
 | **Defensible Architecture** | Explainable decisions to stakeholders | 4-layer composite; can explain each layer |
 | **Production-Ready** | All artifacts saved, no data leakage | Temporal validation, clean pipeline, all code modularized |
 | **Scalable** | Can score large batches efficiently | XGBoost can predict 100k records in <10 seconds |
-| **Alternative Path** | Can serve credit-invisible segments | Open Banking Surrogate (4-feature lightweight model) |
+| **Scalable** | Can score large batches efficiently | XGBoost can predict 100k records in <10 seconds |
 
 ### 8.2 Model Limitations
 
@@ -925,7 +833,7 @@ results.to_csv('underwriting_decisions.csv', index=False)
 | **Macro Sensitivity** | Model trained 2012–2016; may drift in new recessions | Retrain annually; monitor 2018→2019 shifts |
 | **Feature Engineering Complexity** | Many derived features; risk of bugs in production | Well-documented pipeline; all features validated before training |
 | **Behavioral Features Latency** | FICO drop, repay_ratio only available 6–12 months in | Use T=0 only for instant decisions; update T>0 as loan seasons |
-| **Surrogate Model Accuracy** | 4-feature model much weaker than full model | Use for credit-invisible only; graduate to full model once bureau data obtained |
+| **Threshold Sensitivity** | Small threshold change → large impact on false alarm rate | Threshold = 0.30 may need tuning per business appetite |
 | **Threshold Sensitivity** | Small threshold change → large impact on false alarm rate | Threshold = 0.30 may need tuning per business appetite |
 
 ### 8.3 Recommendations for Deployment
@@ -945,10 +853,7 @@ results.to_csv('underwriting_decisions.csv', index=False)
    - **Tier 2 (Full Historian, if approved):** Add rules + cohorts + anomaly for final decision
    - **Tier 3 (Manual review, if 0.25 < score < 0.35):** Borderline cases to underwriter
 
-4. **Open Banking Path**
-   - Use Surrogate for thin-file / credit-invisible applicants
-   - Collect their credit data over time; graduate to full Historian model
-   - Monitor: Are Surrogate-approved borrowers performing as well? (expected: slightly worse)
+
 
 5. **Interpretability & Compliance**
    - Each denied application: Provide email explaining top 3 factors
@@ -965,12 +870,9 @@ results.to_csv('underwriting_decisions.csv', index=False)
 
 ## Conclusion
 
-The Lending Club Default Risk Prediction system comprises two complementary models:
+The Financial Historian (Primary) is a 4-layer ensemble achieving 98.87% recall on defaults via sophisticated feature engineering, proper temporal validation, and interpretable architecture. ROC-AUC 0.8969 on held-out 2018 test data.
 
-1. **Financial Historian (Primary)**: A 4-layer ensemble achieving 98.87% recall on defaults via sophisticated feature engineering, proper temporal validation, and interpretable architecture. ROC-AUC 0.8969 on held-out 2018 test data.
 
-2. **Open Banking Surrogate (Secondary)**: A lightweight 4-feature model for credit-invisible borrowers, enabling alternative underwriting pathways.
-
-Both models are **production-ready**, with clean data pipelines, extensive validation, saved artifacts, and deploychecked documentation. The system balances accuracy with interpretability—critical for regulated lending decisions.
+Both models are **production-ready**, with clean data pipelines, extensive validation, saved artifacts, and documentation. The system balances accuracy with interpretability—critical for regulated lending decisions.
 
 **Key Success Factor:** Temporal walk-forward validation preventing data leakage and ensuring realistic performance estimates. Models will generalize to future loans as long as macro environment remains stable; recommend quarterly monitoring and annual retraining.

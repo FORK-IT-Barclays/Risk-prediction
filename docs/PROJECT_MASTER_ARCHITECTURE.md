@@ -46,7 +46,7 @@ E:\Risk-prediction\
 │   ├── src/                            # Native model training scripts
 │   ├── outputs/                        # Native model output plots
 │   ├── reports/                        # Native evaluation reports
-│   └── moneyviz_surrogate/             # MoneyVis surrogate data (blocked from Git)
+│   ├── reports/                        # Native evaluation reports
 │
 ├── Berka/                              # 🌀 Behavioral Analyst module
 │   ├── 1_Feature_Engineering/
@@ -60,7 +60,7 @@ E:\Risk-prediction\
 │   │   ├── behavioral_engine_v2.pkl    # Trained CatBoost model artifact
 │   │   ├── feature_importance.png      # Top feature weights
 │   │   ├── roc_curve.png               # ROC performance curve
-│   │   └── moneyvis_predictions.csv    # MoneyVis test predictions
+│   │   └── roc_curve.png               # ROC performance curve
 │   ├── implementation plan/
 │   │   └── real_time_risk_plan.md      # Real-time deployment architecture
 │   ├── EDA_workbook.py                 # Exploratory data analysis
@@ -85,7 +85,7 @@ E:\Risk-prediction\
 ├── realtime_risk_engine/               # ⚡ Real-Time Physics Engine
 │   ├── src/
 │   │   ├── config.py                   # All constants (thresholds, paths, scalers)
-│   │   ├── transformer.py              # UK MoneyVis → Universal tag mapper
+│   │   ├── transformer.py              # Universal Ledger mapper
 │   │   ├── feature_engine.py           # 9-signal V&A calculator (original)
 │   │   ├── physics_core.py             # Hybrid Physics (Macro/Micro/Event)
 │   │   └── inference.py                # Main VectorPredictor API entry point
@@ -177,10 +177,9 @@ Transaction arrives
         Unified Verdict
 ```
 
-### The MoneyVis Transformer (`transformer.py`)
-- Maps UK bank statement descriptions to universal tags: `SALARY`, `BILL`, `GROCERY`, etc.
-- Uses `ECONOMIC_PPP_SCALER = 35.0` to convert Czech-trained model outputs to UK currency contexts.
-- Why 35.0: Based on the PPP ratio between Czech Koruna and British Pound.
+### The Universal Transformer (`transformer.py`)
+- Maps bank statement descriptions to universal tags: `SALARY`, `BILL`, `GROCERY`, etc.
+- Standardizes data formats for consistent multi-expert scoring.
 
 ### The Physics Core (`physics_core.py`)
 - **Macro-Velocity (30d):** Compares 3 consecutive 30-day windows to calculate the rate of balance decay.
@@ -204,7 +203,7 @@ Transaction arrives
 | File | Purpose |
 |---|---|
 | `config.py` | All constants: PPP scaler (35.0), F2 threshold (0.46), window sizes, model paths |
-| `transformer.py` | Converts raw UK bank statements into universal tagged format |
+| `transformer.py` | Converts raw bank statements into universal tagged format |
 | `feature_engine.py` | Original 9-signal V&A calculator (180-day lookback) |
 | `physics_core.py` | Hybrid Physics: Macro (30d) + Micro (14d) + Instant Events |
 | `inference.py` | Main API: `VectorPredictor.predict_risk()` — orchestrates all layers |
@@ -234,7 +233,7 @@ The root `.gitignore` enforces a "Strict-First" policy:
 | Blocked | Whitelisted |
 |---|---|
 | `*.csv`, `*.parquet` (raw data) | `*.pkl` (trained models) |
-| `moneyviz_surrogate/` (sensitive) | `*.png` (diagnostic plots) |
+| `__pycache__`, `*.pyc` | `*.md` (documentation) |
 | `*.pdf` (investigation briefs) | `*.md` (documentation) |
 | `__pycache__/`, `*.pyc` | All source code (`.py`) |
 

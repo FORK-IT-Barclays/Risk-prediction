@@ -21,7 +21,7 @@ This document serves as the **"Living Memory"** of our technical journey. It cap
 
 ## 🛡️ 2026-03-26: Phase 3 - Manifest & Security Consolidation
 *   **Decision:** Merged redundant `.gitignore` files into a single root manifest.
-*   **Reasoning:** Simplified project management and ensured that **MoneyViz** (quarantined) is never pushed, while allowing **ML artifacts** (.pkl and .png) to be tracked.
+*   **Reasoning:** Simplified project management and ensured that sensitive data is never pushed, while allowing **ML artifacts** (.pkl and .png) to be tracked.
 *   **Action:** Whitelisted `.pkl` and `.png` in the new root `.gitignore`.
 
 ---

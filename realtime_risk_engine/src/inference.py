@@ -9,7 +9,7 @@ from .config import BEHAVIORAL_MODEL_PATH, F2_OPTIMAL_THRESHOLD
 from .feature_engine import RealTimeFeatureEngine
 from .fusion import fuse_scores
 from .historian import UniversalHistorian
-from .transformer import MoneyVisTransformer
+from .transformer import UniversalTransformer
 
 
 class RiskEngine:
@@ -20,7 +20,7 @@ class RiskEngine:
     """
 
     def __init__(self):
-        self.transformer = MoneyVisTransformer()
+        self.transformer = UniversalTransformer()
         self.feature_engine = RealTimeFeatureEngine()
         self.historian = UniversalHistorian()
 
@@ -47,7 +47,7 @@ class RiskEngine:
         ref_date: str = None,
         account_id: str = "SIM_USER_001",
     ):
-        """Run the behavioral model on a batch of UK-style transactions."""
+        """Run the behavioral model on a batch of transactions."""
         ledger = self.transformer.transform_batch(raw_tx_df)
         target_date = pd.Timestamp(ref_date) if ref_date else ledger["date"].max()
         signals = self.feature_engine.compute_signals(ledger, target_date)
@@ -93,9 +93,15 @@ class RiskEngine:
         profile: dict = None,
         ref_date: str = None,
         account_id: str = "SIM_USER_001",
+        risk_history: list = None,
     ):
         """
-        Unified entry point returning structural, behavioral, and fused scores.
+        Unified pipeline entry point.
+
+        Layer 1: Historian (structural baseline)
+        Layer 2: Behavioral (velocity signals)
+        Fusion:  Combined score
+        Layer 3: Meta-Physics (trajectory analysis from risk_history)
         """
         historian_result = None
         behavioral_result = None

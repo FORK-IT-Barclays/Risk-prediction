@@ -6,6 +6,9 @@ def score_all_customers(repo: MongoRiskRepository, engine: RiskEngine):
     """
     Trigger a portfolio-wide prediction pass and persist timestamped results
     into each customer document.
+
+    The risk_history is loaded from MongoDB and passed into predict_risk()
+    so the Meta-Physics Engine can compute trajectory analysis inline.
     """
     account_ids = repo.list_account_ids()
     results = []
@@ -13,6 +16,10 @@ def score_all_customers(repo: MongoRiskRepository, engine: RiskEngine):
     for account_id in account_ids:
         profile = repo.load_profile(account_id)
         transactions = repo.load_transaction_frame(account_id)
+
+        # Load accumulated risk history for Meta-Physics pipeline stage
+        risk_history = repo.load_risk_history(account_id)
+
         result = engine.predict_risk(
             raw_tx_df=transactions,
             profile=profile,
@@ -22,3 +29,4 @@ def score_all_customers(repo: MongoRiskRepository, engine: RiskEngine):
         results.append(result)
 
     return results
+

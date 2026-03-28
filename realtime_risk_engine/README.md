@@ -168,6 +168,6 @@ Fallbacks:
 ### `transactions` collection
 
 - `account_id`
-- `transactions` (array of MoneyVis-style records)
+- `transactions` (array of transaction records)
 - `updated_at`
 
