@@ -24,9 +24,9 @@ def score_all_customers(repo: MongoRiskRepository, engine: RiskEngine):
             raw_tx_df=transactions,
             profile=profile,
             account_id=account_id,
+            risk_history=risk_history,
         )
         repo.save_prediction_result(account_id, result)
         results.append(result)
 
     return results
-

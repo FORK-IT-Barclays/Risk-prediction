@@ -74,7 +74,7 @@ class MongoRiskRepository:
         run happens. Transactions can keep flowing independently of scoring.
         Now also persists Meta-Physics trajectory data.
         """
-        calculated_at = datetime.now(timezone.utc).isoformat()
+        calculated_at = result.get("calculated_at") or datetime.now(timezone.utc).isoformat()
 
         # Extract trajectory fields if present
         trajectory = result.get("trajectory")
@@ -90,6 +90,8 @@ class MongoRiskRepository:
                 "days_to_default": trajectory.get("days_to_default"),
             }
 
+        stress_profile = result.get("stress_profile") or {}
+
         snapshot = {
             "calculated_at": calculated_at,
             "status": result["status"],
@@ -104,6 +106,10 @@ class MongoRiskRepository:
                 if result["behavioral"] is None
                 else result["behavioral"]["behavioral_score"]
             ),
+            "stress_type": stress_profile.get("stress_type"),
+            "secondary_stress_type": stress_profile.get("secondary_stress_type"),
+            "stress_score_share": stress_profile.get("stress_score_share"),
+            "stress_confidence_band": stress_profile.get("stress_confidence_band"),
             "trajectory": trajectory_snapshot,
         }
         shap_snapshot = {
@@ -275,6 +281,10 @@ class MongoRiskRepository:
                     "final_risk_score": entry.get("final_risk_score"),
                     "historian_score": entry.get("historian_score"),
                     "behavioral_score": entry.get("behavioral_score"),
+                    "stress_type": entry.get("stress_type"),
+                    "secondary_stress_type": entry.get("secondary_stress_type"),
+                    "stress_score_share": entry.get("stress_score_share"),
+                    "stress_confidence_band": entry.get("stress_confidence_band"),
                     "status": entry.get("status"),
                 }
                 for entry in history

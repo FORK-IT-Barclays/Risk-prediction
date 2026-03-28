@@ -112,21 +112,21 @@ http://127.0.0.1:8000/docs
 ## API Endpoints
 
 - `GET /demo`
-Starts background transaction flow for all customers. If DB is empty, it seeds sample customers automatically.
+  Starts background transaction flow for all customers. If DB is empty, it seeds sample customers automatically.
 
 - `POST /stop-demo`
-Stops the background transaction flow.
+  Stops the background transaction flow.
 
 - `GET /demo-stats`
-Returns runtime stream stats:
-`running`, `interval_seconds`, `estimated_transactions_per_second`, `account_count`, `last_cycle_generated`, `total_generated`, `last_cycle_at`.
+  Returns runtime stream stats:
+  `running`, `interval_seconds`, `estimated_transactions_per_second`, `account_count`, `last_cycle_generated`, `total_generated`, `last_cycle_at`.
 
 - `GET /risk-score`
-Runs one scoring pass for all customers and stores a timestamped snapshot into each customer document (`latest_prediction` + append to `risk_history`).
+  Runs one scoring pass for all customers and stores a timestamped snapshot into each customer document (`latest_prediction` + append to `risk_history`).
 
 - `GET /all_scores`
-Returns latest and historical risk score data for all customers, including:
-`risk_score_timestamp`, `risk_score_timestamps_all`, `risk_score_history`, `prediction_count`.
+  Returns latest and historical risk score data for all customers, including:
+  `risk_score_timestamp`, `risk_score_timestamps_all`, `risk_score_history`, `prediction_count`.
 
 ## Risk Logic
 
@@ -170,4 +170,3 @@ Fallbacks:
 - `account_id`
 - `transactions` (array of transaction records)
 - `updated_at`
-

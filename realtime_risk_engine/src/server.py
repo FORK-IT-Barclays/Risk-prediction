@@ -47,6 +47,8 @@ def trigger_risk_score():
                 "behavioral_score": None
                 if result["behavioral"] is None
                 else result["behavioral"]["behavioral_score"],
+                "trajectory": result.get("trajectory"),
+                "stress_profile": result.get("stress_profile"),
                 "current_shap": {
                     "historian_shap": None
                     if result["historian"] is None
@@ -86,7 +88,7 @@ def all_scores():
     }
 
 
-@app.post("/stop-demo")
+@app.get("/stop-demo")
 def stop_demo():
     stopped = demo_controller.stop()
     stats = demo_controller.get_stats()
