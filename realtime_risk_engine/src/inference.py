@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 
 import joblib
 import pandas as pd
+import xgboost as xgb
 
 from .config import BEHAVIORAL_MODEL_PATH, F2_OPTIMAL_THRESHOLD
 from .feature_engine import RealTimeFeatureEngine
@@ -63,6 +64,16 @@ class RiskEngine:
 
         X = pd.DataFrame([signals])[self.behavioral_feature_names]
         prob = float(self.behavioral_model.predict_proba(X)[0, 1])
+        dmatrix = xgb.DMatrix(X, feature_names=self.behavioral_feature_names)
+        contribs = self.behavioral_model.get_booster().predict(
+            dmatrix, pred_contribs=True
+        )
+        shap_row = contribs[0]
+        shap_values = {
+            feature: float(shap_row[idx])
+            for idx, feature in enumerate(self.behavioral_feature_names)
+        }
+        shap_bias = float(shap_row[len(self.behavioral_feature_names)])
 
         return {
             "account_id": account_id,
@@ -71,6 +82,8 @@ class RiskEngine:
             "behavioral_model_version": self.behavioral_model_version,
             "is_distressed": bool(prob >= self.behavioral_threshold),
             "signals": signals,
+            "behavioral_shap": shap_values,
+            "behavioral_shap_bias": shap_bias,
             "status": "OK",
         }
 

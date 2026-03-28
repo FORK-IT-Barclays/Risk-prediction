@@ -45,6 +45,20 @@ def trigger_risk_score():
                 "behavioral_score": None
                 if result["behavioral"] is None
                 else result["behavioral"]["behavioral_score"],
+                "current_shap": {
+                    "historian_shap": None
+                    if result["historian"] is None
+                    else result["historian"].get("historian_shap"),
+                    "historian_shap_bias": None
+                    if result["historian"] is None
+                    else result["historian"].get("historian_shap_bias"),
+                    "behavioral_shap": None
+                    if result["behavioral"] is None
+                    else result["behavioral"].get("behavioral_shap"),
+                    "behavioral_shap_bias": None
+                    if result["behavioral"] is None
+                    else result["behavioral"].get("behavioral_shap_bias"),
+                },
             }
             for result in results
         ],
