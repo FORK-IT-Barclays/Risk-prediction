@@ -70,8 +70,24 @@ class MongoRiskRepository:
         """
         Persist a timestamped risk calculation only when an explicit prediction
         run happens. Transactions can keep flowing independently of scoring.
+        Now also persists Meta-Physics trajectory data.
         """
         calculated_at = datetime.now(timezone.utc).isoformat()
+
+        # Extract trajectory fields if present
+        trajectory = result.get("trajectory")
+        trajectory_snapshot = None
+        if trajectory:
+            trajectory_snapshot = {
+                "zone": trajectory.get("zone"),
+                "velocity": trajectory.get("velocity"),
+                "acceleration": trajectory.get("acceleration"),
+                "r_squared": trajectory.get("r_squared"),
+                "confidence": trajectory.get("confidence"),
+                "trend": trajectory.get("trend"),
+                "days_to_default": trajectory.get("days_to_default"),
+            }
+
         snapshot = {
             "calculated_at": calculated_at,
             "status": result["status"],
@@ -86,6 +102,7 @@ class MongoRiskRepository:
                 if result["behavioral"] is None
                 else result["behavioral"]["behavioral_score"]
             ),
+            "trajectory": trajectory_snapshot,
         }
 
         self.customers.update_one(
@@ -157,6 +174,13 @@ class MongoRiskRepository:
     def load_profile(self, account_id: str):
         doc = self.get_customer(account_id)
         return None if doc is None else doc.get("profile")
+
+    def load_risk_history(self, account_id: str) -> list:
+        """Load the accumulated risk_history array for Meta-Physics analysis."""
+        doc = self.get_customer(account_id)
+        if doc is None:
+            return []
+        return doc.get("risk_history", [])
 
     def load_transaction_frame(self, account_id: str):
         doc = self.get_transactions(account_id)

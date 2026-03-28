@@ -4,8 +4,10 @@ from .demo_stream import DemoStreamController
 from .inference import RiskEngine
 from .mongo_store import MongoRiskRepository
 from .portfolio_scoring import score_all_customers
+from physics_engine.physics_router import router as physics_router
 
 app = FastAPI(title="Realtime Risk Engine")
+app.include_router(physics_router)
 demo_controller = DemoStreamController()
 
 

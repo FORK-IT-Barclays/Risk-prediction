@@ -2,41 +2,42 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 
-class MoneyVisTransformer:
+class UniversalTransformer:
     """
-    Standardises MoneyVis (UK) transaction schemas into the 
+    Standardises transaction schemas into the 
     Universal Ledger format used by the VECTOR engine.
     """
     
     @staticmethod
     def get_tag(description: str, tx_type: str) -> str:
         """
-        Maps UK transaction descriptions and types to universal tags.
+        Maps transaction descriptions and types to universal tags.
         """
         desc = str(description).upper()
         ty = str(tx_type).upper()
         
         # Salary / Income mapping
-        if ty in ["BGC", "FPI"] or "UNIV OF" in desc or "SALARY" in desc:
+        salary_keywords = ["SALARY", "WAGES", "PAYROLL", "BGC", "FPI"]
+        if any(kw in desc for kw in salary_keywords) or ty in ["BGC", "FPI"]:
             return "SALARY"
         
         # Bills / Standing Orders mapping
-        bill_keywords = ["VIRGIN", "O2", "OCTOPUS", "CITY COUNC", "E.ON", "BT GROUP", "RENT"]
-        if ty == "DD" or any(kw in desc for kw in bill_keywords):
+        bill_keywords = ["BILL", "RENT", "UTILITY", "TAX", "INSURANCE", "DD", "SIPO"]
+        if any(kw in desc for kw in bill_keywords) or ty == "DD":
             return "BILL"
             
         return "UNCATEGORIZED"
 
     def transform_batch(self, df: pd.DataFrame) -> pd.DataFrame:
         """
-        Converts a raw MoneyVis DataFrame to the Universal Ledger.
+        Converts a raw transaction DataFrame to the Universal Ledger.
         Expects columns: ['Transaction Date', 'Transaction Description', 
                         'Transaction Type', 'Debit Amount', 'Credit Amount', 'Balance']
         """
         ledger = pd.DataFrame()
         
-        # Mapping Dates
-        ledger["date"] = pd.to_datetime(df["Transaction Date"], dayfirst=True)
+        # Mapping Dates with robust format handling
+        ledger["date"] = pd.to_datetime(df["Transaction Date"], dayfirst=True, errors='coerce')
         
         # Mapping Cashflows
         ledger["cash_in"] = df["Credit Amount"].fillna(0.0).astype(float)
