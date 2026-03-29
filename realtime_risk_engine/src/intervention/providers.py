@@ -70,6 +70,7 @@ class GeminiInterventionProvider:
         except json.JSONDecodeError:
             parsed = {
                 "customer_message": text,
+                "email_body": text,
                 "internal_summary": {
                     "provider_note": "Gemini returned non-JSON text"
                 },
@@ -82,6 +83,18 @@ class GeminiInterventionProvider:
             parsed["internal_summary"] = parsed.pop("rationale")
         if "email_subject" not in parsed:
             parsed["email_subject"] = "Support is available if things feel tighter right now"
+        if "preview_text" not in parsed:
+            parsed["preview_text"] = "Support is available if things feel tighter right now."
+        if "email_body" not in parsed:
+            customer_message = parsed.get("customer_message", "")
+            preview_text = parsed.get("preview_text", "")
+            parsed["email_body"] = (
+                f"{preview_text}\n\n{customer_message}\n\nAdmin\nBarclays Support".strip()
+            )
+        if "decision_summary" not in parsed:
+            parsed["decision_summary"] = "Decision summary not explicitly returned by provider."
+        if "internal_summary" not in parsed:
+            parsed["internal_summary"] = "Internal summary not explicitly returned by provider."
 
         parsed["provider"] = "gemini"
         parsed["model"] = self.model

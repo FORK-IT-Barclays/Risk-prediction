@@ -52,12 +52,13 @@ def send_intervention_email(account_id: str, customer_doc: Dict[str, Any]) -> Di
 
     draft = report.get("draft") or {}
     customer_message = draft.get("customer_message") or draft.get("message")
+    email_body = draft.get("email_body") or customer_message
     email_subject = draft.get("email_subject") or "Support is available if things feel tighter right now"
-    if not customer_message:
+    if not email_body:
         raise RuntimeError("No customer-facing message available to send")
 
     provider = ResendEmailProvider()
-    response = provider.send_message(to_email, email_subject, customer_message)
+    response = provider.send_message(to_email, email_subject, email_body)
 
     return {
         "account_id": account_id,
