@@ -56,3 +56,6 @@ barclaysppt.pdf
 !lending_club/outputs/plots/*.png
 !universal_historian/docs/*.md
 !lending_club/*.md
+
+**/server.err.log
+**/server.out.log
