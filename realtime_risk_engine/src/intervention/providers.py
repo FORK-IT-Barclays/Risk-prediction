@@ -11,6 +11,18 @@ DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
 DEFAULT_GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models"
 
 
+def _looks_configured(value: str | None) -> bool:
+    text = str(value or "").strip()
+    if not text:
+        return False
+    lowered = text.lower()
+    return not (
+        lowered.startswith("your_")
+        or "<" in text
+        or "placeholder" in lowered
+    )
+
+
 class GeminiInterventionProvider:
     def __init__(self):
         self.api_key = os.getenv("GEMINI_API_KEY")
@@ -18,7 +30,7 @@ class GeminiInterventionProvider:
         self.base_url = os.getenv("GEMINI_BASE_URL", DEFAULT_GEMINI_BASE_URL).rstrip("/")
 
     def is_configured(self) -> bool:
-        return bool(self.api_key)
+        return _looks_configured(self.api_key)
 
     def generate(self, prompt: str) -> Dict[str, Any]:
         if not self.api_key:

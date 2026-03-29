@@ -91,7 +91,13 @@ class DemoStreamController:
 
                 history = repo.load_transaction_records(account_id)
                 last_transaction = history[-1] if history else None
-                next_tx = build_next_transaction(self._rng, profile, last_transaction)
+                next_tx = build_next_transaction(
+                    self._rng,
+                    profile,
+                    last_transaction,
+                    account_id=account_id,
+                    tx_index=len(history),
+                )
                 repo.append_transaction(account_id, next_tx)
                 cycle_generated += 1
 

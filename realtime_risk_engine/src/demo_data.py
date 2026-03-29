@@ -1,6 +1,17 @@
+import os
 import random
 
 import pandas as pd
+
+
+def get_reference_today() -> pd.Timestamp:
+    configured = os.getenv("DEMO_REFERENCE_DATE")
+    if configured:
+        try:
+            return pd.Timestamp(configured).normalize()
+        except ValueError:
+            pass
+    return pd.Timestamp.now().normalize()
 
 
 def build_random_profile(rng: random.Random):
@@ -33,9 +44,19 @@ def build_random_profile(rng: random.Random):
     }
 
 
-def build_random_transactions(rng: random.Random, profile: dict) -> pd.DataFrame:
-    end_date = pd.Timestamp.now().normalize()
-    dates = pd.date_range(end=end_date, periods=60, freq="3D")
+def build_random_transactions(
+    rng: random.Random,
+    profile: dict,
+    end_date: pd.Timestamp | str | None = None,
+) -> pd.DataFrame:
+    # Seed a clear six-month history that ends yesterday so the initial
+    # portfolio looks historical rather than "generated today".
+    if end_date is None:
+        end_date = get_reference_today() - pd.Timedelta(days=1)
+    else:
+        end_date = pd.Timestamp(end_date).normalize()
+
+    dates = pd.date_range(end=end_date, periods=180, freq="D")
 
     salary_base = round(profile["annual_inc"] / 12.0, 2)
     balance = round(rng.uniform(800.0, 6000.0), 2)
@@ -88,21 +109,51 @@ def build_random_transactions(rng: random.Random, profile: dict) -> pd.DataFrame
     return pd.DataFrame(rows)
 
 
-def build_next_transaction(rng: random.Random, profile: dict, last_transaction: dict | None):
+def _scenario_for_account(account_id: str | None) -> str:
+    try:
+        numeric = int(str(account_id or "").split("_")[-1])
+    except ValueError:
+        numeric = 0
+
+    bucket = numeric % 5
+    if bucket in (0, 1):
+        return "worsening"
+    if bucket == 2:
+        return "recovering"
+    return "stable"
+
+
+def build_next_transaction(
+    rng: random.Random,
+    profile: dict,
+    last_transaction: dict | None,
+    account_id: str | None = None,
+    tx_index: int = 0,
+):
     """
     Generate the next incoming demo transaction for an existing customer.
     """
     if last_transaction is None:
-        next_date = pd.Timestamp.now().normalize()
+        next_date = get_reference_today()
         last_balance = round(rng.uniform(800.0, 6000.0), 2)
     else:
-        next_date = pd.to_datetime(last_transaction["transaction_date"], dayfirst=True) + pd.Timedelta(days=1)
+        last_date = pd.to_datetime(last_transaction["transaction_date"], dayfirst=True).normalize()
+        today = get_reference_today()
+        # Keep the live demo anchored to the current calendar day instead of
+        # letting repeated clicks push the stream into unrealistic future dates.
+        if last_date >= today:
+            next_date = today
+        else:
+            next_date = last_date + pd.Timedelta(days=1)
         last_balance = float(last_transaction["balance"])
 
     salary_base = round(profile["annual_inc"] / 12.0, 2)
-    cycle = rng.choice(["salary", "bill", "spend"])
+    cycle = ["salary", "bill", "spend"][tx_index % 3]
     credit = 0.0
     debit = 0.0
+    scenario = _scenario_for_account(account_id)
+    demo_step = max(tx_index - 180, 0)
+    phase = min(demo_step / 12.0, 5.0)
 
     if cycle == "salary":
         description = rng.choice(["Monthly Salary", "Salary Credit", "Employer BGC"])
@@ -130,7 +181,24 @@ def build_next_transaction(rng: random.Random, profile: dict, last_transaction: 
         )
         debit = round(rng.uniform(15.0, 420.0), 2)
 
-    balance = round(last_balance + credit - debit + rng.uniform(-35.0, 35.0), 2)
+    if scenario == "worsening":
+        if cycle == "salary":
+            credit = round(credit * max(0.35, 0.82 - (0.08 * phase)), 2)
+        else:
+            debit = round(debit * (1.35 + (0.18 * phase)), 2)
+    elif scenario == "recovering":
+        if cycle == "salary":
+            credit = round(credit * (1.08 + (0.04 * phase)), 2)
+        else:
+            debit = round(debit * max(0.45, 0.78 - (0.04 * phase)), 2)
+
+    noise = rng.uniform(-35.0, 35.0)
+    if scenario == "worsening":
+        noise -= (20 + 10 * phase)
+    elif scenario == "recovering":
+        noise += (10 + 6 * phase)
+
+    balance = round(last_balance + credit - debit + noise, 2)
     return {
         "transaction_date": next_date.strftime("%d/%m/%Y"),
         "description": description,

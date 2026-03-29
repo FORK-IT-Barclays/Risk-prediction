@@ -10,6 +10,18 @@ from typing import Any, Dict
 RESEND_API_BASE = "https://api.resend.com/emails"
 
 
+def _looks_configured(value: str | None) -> bool:
+    text = str(value or "").strip()
+    if not text:
+        return False
+    lowered = text.lower()
+    return not (
+        lowered.startswith("your_")
+        or "<" in text
+        or "placeholder" in lowered
+    )
+
+
 class ResendEmailProvider:
     def __init__(self):
         self.api_key = os.getenv("RESEND_API_KEY")
@@ -17,7 +29,7 @@ class ResendEmailProvider:
         self.from_name = os.getenv("RESEND_FROM_NAME", "Barclays Support")
 
     def is_configured(self) -> bool:
-        return all([self.api_key, self.from_email])
+        return _looks_configured(self.api_key) and _looks_configured(self.from_email)
 
     def send_message(
         self,

@@ -17,7 +17,9 @@ class RealTimeFeatureEngine:
         Extracts 9 behavioral signals for a 180-day window ending at ref_date.
         Divided into T1 (first 90 days) and T2 (most recent 90 days).
         """
-        t2_end = ref_date
+        # Treat ref_date as the latest included calendar day so newly appended
+        # same-day demo transactions actually affect the live score.
+        t2_end = ref_date + pd.Timedelta(days=1)
         t2_start = t2_end - pd.Timedelta(days=VELOCITY_WINDOW_DAYS)
         t1_start = t2_start - pd.Timedelta(days=VELOCITY_WINDOW_DAYS)
         

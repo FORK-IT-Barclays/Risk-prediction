@@ -1,4 +1,5 @@
 from .inference import RiskEngine
+from .intervention.service import run_automatic_intervention
 from .mongo_store import MongoRiskRepository
 
 
@@ -27,6 +28,15 @@ def score_all_customers(repo: MongoRiskRepository, engine: RiskEngine):
             risk_history=risk_history,
         )
         repo.save_prediction_result(account_id, result)
+
+        customer_doc = repo.get_customer(account_id) or {}
+        auto_intervention = run_automatic_intervention(account_id, customer_doc)
+        result["auto_intervention"] = auto_intervention
+        if auto_intervention.get("report") is not None:
+            repo.save_intervention_report(account_id, auto_intervention["report"])
+        if auto_intervention.get("email_delivery") is not None:
+            repo.save_email_delivery(account_id, auto_intervention["email_delivery"])
+
         results.append(result)
 
     return results

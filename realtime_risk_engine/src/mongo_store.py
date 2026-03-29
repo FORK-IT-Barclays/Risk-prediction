@@ -35,7 +35,7 @@ class MongoRiskRepository:
     @classmethod
     def from_env(cls):
         if load_dotenv is not None:
-            load_dotenv(ENV_PATH, override=True)
+            load_dotenv(ENV_PATH, override=False)
 
         uri = os.getenv("MONGODB_URI", DEFAULT_URI)
         db_name = os.getenv("MONGODB_DB_NAME", DEFAULT_DB)
@@ -53,6 +53,17 @@ class MongoRiskRepository:
     def ensure_indexes(self):
         self.customers.create_index("account_id", unique=True)
         self.transactions.create_index("account_id", unique=True)
+
+    def count_customers(self) -> int:
+        return int(self.customers.count_documents({}))
+
+    def count_transaction_docs(self) -> int:
+        return int(self.transactions.count_documents({}))
+
+    def count_scored_customers(self) -> int:
+        return int(
+            self.customers.count_documents({"latest_prediction.final_risk_score": {"$ne": None}})
+        )
 
     def upsert_customer(self, account_id: str, profile: dict):
         now = datetime.now(timezone.utc).isoformat()
@@ -218,15 +229,29 @@ class MongoRiskRepository:
     def upsert_transactions(self, account_id: str, transactions_df: pd.DataFrame):
         now = datetime.now(timezone.utc).isoformat()
         tx_records = []
-        for row in transactions_df.to_dict(orient="records"):
+        for idx, row in enumerate(transactions_df.to_dict(orient="records")):
+            transaction_date = row["Transaction Date"]
+            try:
+                historical_dt = datetime.strptime(transaction_date, "%d/%m/%Y").replace(
+                    tzinfo=timezone.utc,
+                    hour=12,
+                    minute=0,
+                    second=0,
+                    microsecond=0,
+                )
+                historical_dt = historical_dt.replace(second=min(idx % 60, 59))
+                appended_at = historical_dt.isoformat()
+            except ValueError:
+                appended_at = now
             tx_records.append(
                 {
-                    "transaction_date": row["Transaction Date"],
+                    "transaction_date": transaction_date,
                     "description": row["Transaction Description"],
                     "transaction_type": row["Transaction Type"],
                     "credit_amount": float(row["Credit Amount"]),
                     "debit_amount": float(row["Debit Amount"]),
                     "balance": float(row["Balance"]),
+                    "appended_at": appended_at,
                 }
             )
 
@@ -244,6 +269,10 @@ class MongoRiskRepository:
 
     def append_transaction(self, account_id: str, transaction_record: dict):
         now = datetime.now(timezone.utc).isoformat()
+        tx_record = {
+            **transaction_record,
+            "appended_at": now,
+        }
         self.transactions.update_one(
             {"account_id": account_id},
             {
@@ -251,19 +280,19 @@ class MongoRiskRepository:
                     "account_id": account_id,
                     "updated_at": now,
                 },
-                "$push": {"transactions": transaction_record},
+                "$push": {"transactions": tx_record},
             },
             upsert=True,
         )
         logger.info(
             "transaction_appended account_id=%s date=%s type=%s desc=%s credit=%.2f debit=%.2f balance=%.2f",
             account_id,
-            transaction_record.get("transaction_date"),
-            transaction_record.get("transaction_type"),
-            transaction_record.get("description"),
-            float(transaction_record.get("credit_amount", 0.0)),
-            float(transaction_record.get("debit_amount", 0.0)),
-            float(transaction_record.get("balance", 0.0)),
+            tx_record.get("transaction_date"),
+            tx_record.get("transaction_type"),
+            tx_record.get("description"),
+            float(tx_record.get("credit_amount", 0.0)),
+            float(tx_record.get("debit_amount", 0.0)),
+            float(tx_record.get("balance", 0.0)),
         )
 
     def get_customer(self, account_id: str):
@@ -318,6 +347,45 @@ class MongoRiskRepository:
         transaction_ids = set(self.transactions.distinct("account_id"))
         return sorted(customer_ids | transaction_ids)
 
+    def list_recent_transactions(self, limit: int = 100):
+        rows = []
+        cursor = self.transactions.find({}, {"_id": 0, "account_id": 1, "transactions": 1})
+        for doc in cursor:
+            account_id = doc.get("account_id")
+            for tx in doc.get("transactions", []):
+                amount = float(tx.get("credit_amount") or 0.0) - float(
+                    tx.get("debit_amount") or 0.0
+                )
+                rows.append(
+                    {
+                        "account_id": account_id,
+                        "timestamp": tx.get("transaction_date"),
+                        "description": tx.get("description"),
+                        "type": tx.get("transaction_type"),
+                        "amount": amount,
+                        "credit_amount": float(tx.get("credit_amount") or 0.0),
+                        "debit_amount": float(tx.get("debit_amount") or 0.0),
+                        "balance": float(tx.get("balance") or 0.0),
+                        "recorded_at": tx.get("appended_at"),
+                    }
+                )
+        def sort_key(item):
+            recorded_at = item.get("recorded_at")
+            if recorded_at:
+                try:
+                    return datetime.fromisoformat(recorded_at)
+                except ValueError:
+                    pass
+
+            timestamp = item.get("timestamp") or ""
+            try:
+                return datetime.strptime(timestamp, "%d/%m/%Y").replace(tzinfo=timezone.utc)
+            except ValueError:
+                return datetime.min.replace(tzinfo=timezone.utc)
+
+        rows.sort(key=sort_key, reverse=True)
+        return rows[:limit]
+
     def list_latest_scores(self):
         """
         Fetch stored risk snapshots for every customer document.
@@ -331,6 +399,8 @@ class MongoRiskRepository:
                 "account_id": 1,
                 "latest_prediction": 1,
                 "latest_shap": 1,
+                "latest_intervention_report": 1,
+                "latest_email_delivery": 1,
                 "risk_history": 1,
                 "updated_at": 1,
             },
@@ -338,6 +408,8 @@ class MongoRiskRepository:
         for doc in cursor:
             latest = doc.get("latest_prediction")
             latest_shap = doc.get("latest_shap")
+            latest_intervention_report = doc.get("latest_intervention_report")
+            latest_email_delivery = doc.get("latest_email_delivery")
             history = doc.get("risk_history", [])
             timestamps_all = [entry.get("calculated_at") for entry in history if entry.get("calculated_at")]
             score_history = [
@@ -371,6 +443,8 @@ class MongoRiskRepository:
                     "risk_score_history": score_history,
                     "latest_prediction": latest,
                     "latest_shap": latest_shap,
+                    "latest_intervention_report": latest_intervention_report,
+                    "latest_email_delivery": latest_email_delivery,
                 }
             )
         rows.sort(key=lambda x: x["account_id"] or "")
