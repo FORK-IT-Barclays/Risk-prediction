@@ -32,16 +32,10 @@ Desired tone: {strategy.get('tone')}
 Message goal: {strategy.get('message_goal')}
 
 Rules:
-- Write this as a real customer email from Admin / Barclays Support.
-- Use a warm, professional, supportive tone.
-- Do not use judgmental language or accuse the customer of overspending.
+- Keep the message to 2 short sentences.
+- Do not use judgmental language.
+- Do not accuse the customer of overspending.
+- Offer support, flexibility, or reassurance depending on the zone.
 - The customer-facing text must not mention SHAP, velocity, acceleration, zones, or internal model names.
-- Keep the email concise: subject line, one preview line, and a short body with at most 3 short paragraphs.
-- Include a supportive sign-off from "Admin, Barclays Support".
-- In addition to the customer email, provide a richer internal explanation that clearly states:
-  - the decision-matrix verdict,
-  - why intervention was allowed,
-  - the primary and secondary stress types,
-  - and the top 3 drivers in plain language.
-- Return valid JSON with keys: email_subject, preview_text, customer_message, email_body, internal_summary, decision_summary, emotional_readiness.
+- Return JSON with keys: customer_message, internal_summary, emotional_readiness.
 """.strip()
