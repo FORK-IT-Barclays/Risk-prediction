@@ -1,0 +1,86 @@
+ML Project: VECTOR Behavioral Credit Risk Model
+
+I built the behavioral risk model for a real-time credit risk engine. The goal was to predict whether a customer is likely to become financially distressed by analyzing transaction behavior over time, rather than relying only on static profile data.
+
+1. Data Preprocessing
+
+- Used the PKDD99/Berka banking dataset, containing around 1M+ transactions and 682 loan accounts.
+- Converted raw transactions into a common ledger format: date, cash_in, cash_out, balance, and transaction tag.
+- Mapped loan statuses into binary labels:
+  - A/C -> non-default
+  - B/D -> default/distressed
+- Handled missing salary-related values by filling unavailable salary drift with 0.
+- Used account-level grouping so the same customer did not appear in both train and test folds.
+
+2. Feature Engineering
+
+- Engineered behavioral features using a 180-day window split into:
+  - T1: previous 90 days
+  - T2: recent 90 days
+- Focused on risk velocity: how a customer's financial behavior changes over time.
+- Built 9 behavioral features:
+  - income_erosion_v: change in cash inflow
+  - liquidity_momentum_v: change in average balance
+  - overdraft_v: change in overdraft frequency
+  - overdraft_t2: recent overdraft severity
+  - salary_drift_v: shift in salary arrival day
+  - tx_freq_v: change in transaction frequency
+  - avg_balance_t2: recent average balance
+  - min_balance_t2: recent minimum balance
+  - total_out_t2: recent total outflow
+- These features converted raw transaction history into interpretable financial stress signals.
+
+3. Model Selection
+
+- Tested multiple models:
+  - XGBoost
+  - LightGBM
+  - CatBoost
+  - Balanced Random Forest
+  - Logistic Regression
+- Selected XGBoost because it performed best on the main objective, F2-score.
+- XGBoost was suitable because:
+  - the data is tabular
+  - the dataset is imbalanced
+  - tree models capture non-linear financial behavior well
+  - it supports feature importance and SHAP explanations
+
+4. Evaluation Metrics
+
+- Used 5-Fold Stratified Group K-Fold Cross Validation.
+- Grouped by account_id to prevent customer-level leakage.
+- Main metric: F2-score.
+- I chose F2-score because missing a risky customer is more costly than flagging an extra safe one.
+- Also tracked:
+  - ROC-AUC
+  - Recall
+  - False Positive Rate
+  - Precision
+- Final tuned model achieved approximately:
+  - ROC-AUC: 0.851
+  - Recall: 67.0%
+  - False Positive Rate: 12.8%
+  - F2-score: 0.597
+
+5. Hyperparameter Tuning
+
+- Used Optuna for 50 trials.
+- Tuned parameters like:
+  - n_estimators
+  - learning_rate
+  - max_depth
+  - subsample
+  - colsample_bytree
+  - regularization parameters
+- Also tested imbalance strategies:
+  - SMOTE
+  - BorderlineSMOTE
+  - ADASYN
+  - XGBoost scale_pos_weight
+- Final model used tuned XGBoost with class weighting and a deployment threshold of 0.46.
+
+Short Summary
+
+- I built a behavioral credit-risk model that predicts financial distress from transaction patterns.
+- The main idea was to measure how a customer's financial health is changing, not just their current balance.
+- The model was deployed into a real-time risk engine where it produces both a risk score and explainable SHAP-based drivers.
